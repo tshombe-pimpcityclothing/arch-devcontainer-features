@@ -1,1 +1,20 @@
-{}
+{
+    "install_common_utils_and_aws_cli": {
+        "image": "archlinux:latest",
+        "features": {
+            "common-utils": {
+                "installZsh": true,
+                "configureZshAsDefaultShell": true,
+                "installOhMyZsh": true,
+                "installOhMyZshConfig": true,
+                "upgradePackages": true,
+                "username": "devcontainer",
+                "userUid": "1001",
+                "userGid": "1001"
+            },
+            "aws-cli": {
+                "version": "latest"
+            }
+        }
+    }
+}
