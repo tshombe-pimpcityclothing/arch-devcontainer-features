@@ -15,8 +15,12 @@ jobs:
                 features:
                     - common-utils
                     - aws-cli
+                    - git
                 baseImage:
                     - archlinux:latest
+                    - archlinux:base
+                    - archlinux:base-devel
+                    - archlinux:multilib-devel
         steps:
             - uses: actions/checkout@v4
 
@@ -34,6 +38,7 @@ jobs:
                 features:
                     - common-utils
                     - aws-cli
+                    - git
         steps:
             - uses: actions/checkout@v4
 
