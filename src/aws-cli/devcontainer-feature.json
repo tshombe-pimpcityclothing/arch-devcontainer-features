@@ -1,0 +1,28 @@
+{
+    "id": "aws-cli",
+    "version": "1.0.0",
+    "name": "AWS CLI",
+    "documentationURL": "https://github.com/bartventer/devcontainer-features/tree/main/src/aws-cli",
+    "licenseURL": "https://github.com/bartventer/devcontainer-features/blob/main/LICENSE",
+    "description": "Installs the AWS CLI along with needed dependencies. Useful for base Dockerfiles that often are missing required install dependencies like gpg.",
+    "options": {
+        "version": {
+            "type": "string",
+            "proposals": [
+                "latest"
+            ],
+            "default": "latest",
+            "description": "Select or enter an AWS CLI version."
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "AmazonWebServices.aws-toolkit-vscode"
+            ]
+        }
+    },
+    "installsAfter": [
+        "ghcr.io/bartventer/devcontainer-features/common-utils"
+    ]
+}

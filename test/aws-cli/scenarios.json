@@ -1,0 +1,10 @@
+{
+    "install_aws_cli_latest": {
+        "image": "archlinux:latest",
+        "features": {
+            "aws-cli": {
+                "version": "latest"
+            }
+        }
+    }
+}
