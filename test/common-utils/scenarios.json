@@ -1,0 +1,32 @@
+{
+    "install_common_utils_zsh_ohmyzsh": {
+        "image": "archlinux:latest",
+        "features": {
+            "common-utils": {
+                "installZsh": true,
+                "configureZshAsDefaultShell": true,
+                "installOhMyZsh": true,
+                "installOhMyZshConfig": true,
+                "upgradePackages": true,
+                "username": "devcontainer",
+                "userUid": "1001",
+                "userGid": "1001"
+            }
+        }
+    },
+    "install_common_utils_no_zsh_no_ohmyzsh": {
+        "image": "archlinux:latest",
+        "features": {
+            "common-utils": {
+                "installZsh": false,
+                "configureZshAsDefaultShell": false,
+                "installOhMyZsh": false,
+                "installOhMyZshConfig": false,
+                "upgradePackages": true,
+                "username": "devcontainer",
+                "userUid": "1001",
+                "userGid": "1001"
+            }
+        }
+    }
+}
