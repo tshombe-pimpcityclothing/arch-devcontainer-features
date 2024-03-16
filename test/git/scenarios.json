@@ -1,0 +1,18 @@
+{
+    "install_git_from_src": {
+        "image": "archlinux:latest",
+        "features": {
+            "git": {
+                "version": "latest"
+            }
+        }
+    },
+    "install_git_os_provided": {
+        "image": "archlinux:latest",
+        "features": {
+            "git": {
+                "version": "os-provided"
+            }
+        }
+    }
+}
