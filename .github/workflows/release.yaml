@@ -45,20 +45,3 @@ jobs:
                       git push origin "$branch"
                       gh pr create --title "$message" --body "$message"
                   fi
-
-    semantic-release:
-        name: Semantic Release
-        needs: [deploy]
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-            issues: write
-        steps:
-            - uses: actions/checkout@v4
-            - name: Run semantic-release
-              if: github.repository == 'bartventer/devcontainer-features' && github.event_name == 'push'
-              run: |
-                  yarn global add semantic-release@17
-                  semantic-release
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
