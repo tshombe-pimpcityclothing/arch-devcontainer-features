@@ -58,6 +58,7 @@ check_pacman() {
     echo_msg "OK. Pacman is installed."
 }
 
+# Initialize pacman keyring
 init_pacman_keyring() {
     if [ "$KEYRING_CHECKED" = false ]; then
         echo_msg "Initializing pacman keyring (current count: $(pacman-key --list-keys | wc -l))..."
@@ -92,27 +93,18 @@ adjust_dir_permissions() {
     fi
 }
 
-# Checks if packages are installed and if not, adds them to a list
+# Check and install packages
 check_and_install_packages() {
-    echo_msg "Checking if packages (${*}) are installed..."
-    pkgs_to_install=""
-    for pkg in "$@"; do
-        if ! pacman -Q "$pkg" > /dev/null 2>&1; then
-            pkgs_to_install="$pkgs_to_install $pkg"
-        fi
-    done
+    echo_msg "Checking and updating packages (${*})..."
 
-    if [ -n "$pkgs_to_install" ]; then
-        adjust_dir_permissions
-        init_pacman_keyring
+    adjust_dir_permissions
+    init_pacman_keyring
 
-        echo_msg "Installing packages ($pkgs_to_install)..."
-        # shellcheck disable=SC2086
-        if ! pacman -Syu --needed --noconfirm $pkgs_to_install; then
-            echo "Failed to install packages. If you're getting an error about a missing secret key, you might need to manually import the key. Refer to the Arch Linux wiki for more information: https://wiki.archlinux.org/title/Pacman/Package_signing#Adding_unofficial_keys"
-            exit 1
-        fi
+    echo_msg "Installing and updating packages ($*)..."
+    if ! pacman -Syu --needed --noconfirm "$@"; then
+        echo "Failed to install or update packages. If you're getting an error about a missing secret key, you might need to manually import the key. Refer to the Arch Linux wiki for more information: https://wiki.archlinux.org/title/Pacman/Package_signing#Adding_unofficial_keys"
+        exit 1
     fi
 
-    echo_msg "OK. All packages (${*}) installed or already present."
+    echo_msg "OK. All packages (${*}) installed or updated."
 }
