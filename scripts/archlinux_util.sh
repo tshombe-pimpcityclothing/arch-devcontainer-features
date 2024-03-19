@@ -11,21 +11,34 @@
 #               adjusting directory permissions  and installing packages. This script is intended to be used as a 
 #               utility helper when setting up and managing Arch Linux systems in devcontainer features.
 # 
+# Environment Variables:
+#   ARCH_VERBOSE_LOGGING: If set to "true", the script will output verbose log messages.
+#   ARCH_SKIP_KEYRING_CHECKS: If set to "true", the script will skip the pacman keyring checks.
+#   ARCH_DIR_PERMS_CHECKED: If set to "true", the script will skip the directory permissions checks.
+#   ARCH_KEYRING_CHECKED: If set to "true", the script will skip the pacman keyring initialization.
+#
 #-----------------------------------------------------------------------------------------------------------------
-
 
 # Exit on error
 set -e
 
-DIR_PERMS_CHECKED="${DIR_PERMS_CHECKED:-false}"
-KEYRING_CHECKED="${KEYRING_CHECKED:-false}"
+ARCH_DIR_PERMS_CHECKED="${ARCH_DIR_PERMS_CHECKED:-false}"
+ARCH_KEYRING_CHECKED="${ARCH_KEYRING_CHECKED:-false}"
 
 # Echo message
+color1='\033[1;36m' # Light Cyan
+color2='\033[1;34m' # Light Blue
+no_color='\033[0m' # No color
 echo_msg() {
-    old_message=$message
     message=$1
-    echo "[devcontainer-features/scripts/archlinux] ${message}"
-    message=$old_message
+    script_path=$(realpath "$0")
+
+    if [ "$ARCH_VERBOSE_LOGGING" = "true" ]; then
+        timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+        printf "[%b%s%b] [%b%s%b] %s\n" "$color1" "$script_path" "$no_color" "$color2" "$timestamp" "$no_color" "$message"
+    else
+        printf "[%b%s%b] %s\n" "$color1" "$script_path" "$no_color" "$message"
+    fi
 }
 
 # Checks if script is run as root
@@ -60,11 +73,15 @@ check_pacman() {
 
 # Initialize pacman keyring
 init_pacman_keyring() {
-    if [ "$KEYRING_CHECKED" = false ]; then
+    # If ARCH_SKIP_KEYRING_CHECKS is set to "true" during the Docker build process,
+    # skip the keyring checks. This is set in the Dockerfile.
+    # (https://github.com/bartventer/devcontainer-images/blob/main/archlinux/Dockerfile)
+    SKIP_KEYRING_CHECKS="${ARCH_SKIP_KEYRING_CHECKS:-false}"
+    if [ "$SKIP_KEYRING_CHECKS" = false ]; then
         echo_msg "Initializing pacman keyring (current count: $(pacman-key --list-keys | wc -l))..."
         if pacman-key --init && pacman-key --populate archlinux; then
             echo_msg "OK. Pacman keyring initialized (new count: $(pacman-key --list-keys | wc -l))."
-            export KEYRING_CHECKED=true
+            export ARCH_KEYRING_CHECKED=true
         else
             echo_msg "ERROR. Pacman keyring initialization failed."
             exit 1
@@ -73,14 +90,12 @@ init_pacman_keyring() {
         # Upgrade system
         echo_msg "Upgrading system..."
         pacman -Sy --needed --noconfirm archlinux-keyring && pacman -Su --noconfirm
-
-
     fi
 }
 
 # Adjust directory permissions if needed
 adjust_dir_permissions() {
-    if [ "$DIR_PERMS_CHECKED" = false ]; then
+    if [ "$ARCH_DIR_PERMS_CHECKED" = false ]; then
         echo_msg "Adjusting directory permissions..."
         if [ "$(stat -c %a /srv/ftp)" != "555" ]; then
             chmod 555 /srv/ftp
@@ -88,14 +103,13 @@ adjust_dir_permissions() {
         if [ "$(stat -c %a /usr/share/polkit-1/rules.d/)" != "755" ]; then
             chmod 755 /usr/share/polkit-1/rules.d/
         fi
-        export DIR_PERMS_CHECKED=true
+        export ARCH_DIR_PERMS_CHECKED=true
         echo_msg "OK. Directory permissions adjusted."
     fi
 }
 
 # Check and install packages
 check_and_install_packages() {
-    echo_msg "Checking and updating packages (${*})..."
 
     adjust_dir_permissions
     init_pacman_keyring
