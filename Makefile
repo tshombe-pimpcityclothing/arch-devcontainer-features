@@ -2,7 +2,7 @@
 .ONESHELL:
 
 # Variables
-FEATURES ?= common-utils ## Feature to test. Default: 'common-utils'. Options: 'aws-cli', 'common-utils', 'docker-in-docker', 'docker-outside-of-docker', 'git'
+FEATURES ?= common-utils ## Feature to test. Default: 'common-utils'. Options: 'aws-cli', 'common-utils', 'docker-in-docker', 'docker-outside-of-docker'
 BASE_IMAGE ?= archlinux:base ## Base image for testing. Must be Arch Linux with 'pacman'. Default: 'archlinux:base'.
 PATH_TO_RUN ?= . ## Path to run the tests. Default: . (current directory). Change this in the Makefile or in the environment.
 

@@ -27,7 +27,6 @@ This repository contains a _collection_ of features curated by [@bartventer](htt
 -   [Collected Features](#collected-features)
     -   [common-utils](#common-utils)
     -   [aws-cli](#aws-cli)
-    -   [git](#git)
 -   [Contributing](#contributing)
 -   [License](#license)
 -   [Trademarks](#trademarks)
@@ -44,10 +43,10 @@ Common Utilities installs a set of common command line utilities, Oh My Zsh!, an
 "features": {
     "ghcr.io/bartventer/devcontainer-features/common-utils:1": {
         "installZsh": true,
+        "additionalPackages": "go nodejs npm",
         "configureZshAsDefaultShell": false,
         "installOhMyZsh": true,
         "installOhMyZshConfig": true,
-        "upgradePackages": true,
         "username": "automatic",
         "userUid": "automatic",
         "userGid": "automatic"
@@ -72,22 +71,6 @@ AWS CLI installs the AWS CLI along with needed dependencies. Useful for base Doc
 ```
 
 Additional options can be found in the [feature documentation](src/aws-cli/README.md).
-
-### git
-
-Git (from source) installs an up-to-date version of Git, built from source as needed. Useful for when you want the latest and greatest features. Auto-detects latest stable version and installs needed dependencies.
-
-#### usage
-
-```json
-"features": {
-    "ghcr.io/bartventer/devcontainer-features/git:1.0.0": {
-        "version": "os-provided"
-    }
-}
-```
-
-Additional options can be found in the [feature documentation](src/git/README.md).
 
 ## Contributing
 
