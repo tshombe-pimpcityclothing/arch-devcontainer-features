@@ -8,8 +8,10 @@
     "options": {
         "version": {
             "type": "string",
-            "proposals": [
-                "latest"
+            "enum": [
+                "latest",
+                "v1",
+                "v2"
             ],
             "default": "latest",
             "description": "Select or enter an AWS CLI version."
