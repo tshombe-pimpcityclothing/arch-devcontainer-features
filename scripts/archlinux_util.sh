@@ -13,7 +13,6 @@
 # 
 # Environment Variables:
 #   ARCH_VERBOSE_LOGGING: If set to "true", the script will output verbose log messages.
-#   ARCH_SKIP_KEYRING_CHECKS: If set to "true", the script will skip the pacman keyring checks.
 #   ARCH_DIR_PERMS_CHECKED: If set to "true", the script will skip the directory permissions checks.
 #   ARCH_KEYRING_CHECKED: If set to "true", the script will skip the pacman keyring initialization.
 #
@@ -74,9 +73,9 @@ check_pacman() {
 # Initialize pacman keyring
 init_pacman_keyring() {
     if [ "$ARCH_KEYRING_CHECKED" = false ]; then
-        echo_msg "Initializing pacman keyring (current count: $(pacman-key --list-keys | wc -l))..."
+        echo_msg "Initializing pacman keyring..."
         if pacman-key --init && pacman-key --populate archlinux; then
-            echo_msg "OK. Pacman keyring initialized (new count: $(pacman-key --list-keys | wc -l))."
+            echo_msg "OK. Pacman keyring initialized."
             export ARCH_KEYRING_CHECKED=true
         else
             echo_msg "ERROR. Pacman keyring initialization failed."
@@ -86,6 +85,7 @@ init_pacman_keyring() {
         # Upgrade system
         echo_msg "Upgrading system..."
         pacman -Sy --needed --noconfirm archlinux-keyring && pacman -Su --noconfirm
+        echo_msg "OK. System upgraded."
     fi
 }
 
