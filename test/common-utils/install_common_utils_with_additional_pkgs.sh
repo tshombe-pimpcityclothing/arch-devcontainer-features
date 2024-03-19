@@ -7,7 +7,7 @@ source dev-container-features-test-lib
 
 # Additional packages
 check "whois" whois --version
-check "dnsutils" nslookup --version
+check "dig" dig -v
 check "traceroute" traceroute --version
 
 # Report result

@@ -11,7 +11,8 @@ set -e
 
 # shellcheck disable=SC2034
 INSTALL_ZSH="${INSTALLZSH:-"true"}"
-ADDITIONAL_PACKAGES="${ADDITIONAL_PACKAGES:-""}"
+# shellcheck disable=SC2034
+ADDITIONAL_PACKAGES="${ADDITIONALPACKAGES:-""}"
 # shellcheck disable=SC2034
 CONFIGURE_ZSH_AS_DEFAULT_SHELL="${CONFIGUREZSHASDEFAULTSHELL:-"false"}"
 # shellcheck disable=SC2034

@@ -10,7 +10,7 @@
 set -e
 
 INSTALL_ZSH="${INSTALLZSH:-"true"}"
-ADDITIONAL_PACKAGES="${ADDITIONAL_PACKAGES:-""}"
+ADDITIONAL_PACKAGES="${ADDITIONALPACKAGES:-""}"
 CONFIGURE_ZSH_AS_DEFAULT_SHELL="${CONFIGUREZSHASDEFAULTSHELL:-"false"}"
 INSTALL_OH_MY_ZSH="${INSTALLOHMYZSH:-"true"}"
 INSTALL_OH_MY_ZSH_CONFIG="${INSTALLOHMYZSHCONFIG:-"true"}"
@@ -87,6 +87,7 @@ install_arch_packages() {
 
         # Additonal packages (space separated string). Eg: "docker-compose kubectl"
         if [ -n "${ADDITIONAL_PACKAGES}" ]; then
+            echo "Additional packages to install: ${ADDITIONAL_PACKAGES}..."
             IFS=' ' read -r -a additional_pkgs <<< "${ADDITIONAL_PACKAGES}"
             package_list+=("${additional_pkgs[@]}")
         fi
@@ -156,6 +157,7 @@ elif [ "${USERNAME}" = "none" ]; then
     USER_UID=0
     USER_GID=0
 fi
+
 # Create or update a non-root user to match UID/GID.
 group_name="${USERNAME}"
 if id -u "${USERNAME}" > /dev/null 2>&1; then
@@ -338,4 +340,4 @@ echo -e "\
     RC_SNIPPET_ALREADY_ADDED=${RC_SNIPPET_ALREADY_ADDED}\n\
     ZSH_ALREADY_INSTALLED=${ZSH_ALREADY_INSTALLED}" > "${MARKER_FILE}"
 
-echo "Done!"
+echo "Done! Common utilities devcontainer feature has been installed."
