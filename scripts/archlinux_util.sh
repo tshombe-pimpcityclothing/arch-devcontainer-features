@@ -73,11 +73,7 @@ check_pacman() {
 
 # Initialize pacman keyring
 init_pacman_keyring() {
-    # If ARCH_SKIP_KEYRING_CHECKS is set to "true" during the Docker build process,
-    # skip the keyring checks. This is set in the Dockerfile.
-    # (https://github.com/bartventer/devcontainer-images/blob/main/archlinux/Dockerfile)
-    SKIP_KEYRING_CHECKS="${ARCH_SKIP_KEYRING_CHECKS:-false}"
-    if [ "$SKIP_KEYRING_CHECKS" = false ]; then
+    if [ "$ARCH_KEYRING_CHECKED" = false ]; then
         echo_msg "Initializing pacman keyring (current count: $(pacman-key --list-keys | wc -l))..."
         if pacman-key --init && pacman-key --populate archlinux; then
             echo_msg "OK. Pacman keyring initialized (new count: $(pacman-key --list-keys | wc -l))."
