@@ -11,6 +11,14 @@
             "default": true,
             "description": "Install ZSH?"
         },
+        "additionalPackages": {
+            "type": "string",
+            "description": "Space separated list of additional packages to install",
+            "default": "",
+            "proposals": [
+                "go nodejs npm"
+            ]
+        },
         "configureZshAsDefaultShell": {
             "type": "boolean",
             "default": false,
@@ -25,11 +33,6 @@
             "type": "boolean",
             "default": true,
             "description": "Allow installing the default dev container .zshrc templates?"
-        },
-        "upgradePackages": {
-            "type": "boolean",
-            "default": true,
-            "description": "Upgrade OS packages?"
         },
         "username": {
             "type": "string",

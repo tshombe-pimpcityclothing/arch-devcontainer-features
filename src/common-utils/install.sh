@@ -11,6 +11,7 @@ set -e
 
 # shellcheck disable=SC2034
 INSTALL_ZSH="${INSTALLZSH:-"true"}"
+ADDITIONAL_PACKAGES="${ADDITIONAL_PACKAGES:-""}"
 # shellcheck disable=SC2034
 CONFIGURE_ZSH_AS_DEFAULT_SHELL="${CONFIGUREZSHASDEFAULTSHELL:-"false"}"
 # shellcheck disable=SC2034
@@ -29,24 +30,35 @@ USER_GID="${GID:-"automatic"}"
 # shellcheck disable=SC2034
 MARKER_FILE="/usr/local/etc/vscode-dev-containers/common"
 
-if [ "$(id -u)" -ne 0 ]; then
-    # shellcheck disable=SC3037
-    echo -e 'Script must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script.'
-    exit 1
+
+# ***********************
+# ** Utility functions **
+# ***********************
+
+UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
+
+# Check if the utility script exists
+if [ ! -f "$UTIL_SCRIPT" ]; then
+    echo "Cloning archlinux_util.sh from GitHub to $UTIL_SCRIPT"
+    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/devcontainer-features/main/scripts/archlinux_util.sh
+    chmod +x "$UTIL_SCRIPT"
 fi
 
-
-# Initialize pacman keyring
-pacman-key --init
-
-# Fix directory permissions
-chmod 555 /srv/ftp/
-chmod 755 /usr/share/polkit-1/rules.d/
+# Source the utility script
+# shellcheck disable=SC1090
+. "$UTIL_SCRIPT"
 
 # shellcheck disable=SC1091
 . /etc/os-release
-# Install bash before executing
-pacman -Syu --noconfirm bash
 
+# Run checks
+check_root
+check_system
+check_pacman
+
+# Install bash
+check_and_install_packages "bash"
+
+# Execute main script
 exec /bin/bash "$(dirname "$0")/main.sh" "$@"
 exit $?

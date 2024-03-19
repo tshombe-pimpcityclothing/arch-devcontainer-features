@@ -7,7 +7,6 @@
                 "configureZshAsDefaultShell": true,
                 "installOhMyZsh": true,
                 "installOhMyZshConfig": true,
-                "upgradePackages": true,
                 "username": "devcontainer",
                 "userUid": "1001",
                 "userGid": "1001"
@@ -22,7 +21,21 @@
                 "configureZshAsDefaultShell": false,
                 "installOhMyZsh": false,
                 "installOhMyZshConfig": false,
-                "upgradePackages": true,
+                "username": "devcontainer",
+                "userUid": "1001",
+                "userGid": "1001"
+            }
+        }
+    },
+    "install_common_utils_with_additional_pkgs": {
+        "image": "archlinux:latest",
+        "features": {
+            "common-utils": {
+                "installZsh": true,
+                "additionalPackages": "whois dnsutils traceroute",
+                "configureZshAsDefaultShell": true,
+                "installOhMyZsh": true,
+                "installOhMyZshConfig": true,
                 "username": "devcontainer",
                 "userUid": "1001",
                 "userGid": "1001"

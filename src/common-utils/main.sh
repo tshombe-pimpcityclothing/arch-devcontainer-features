@@ -10,10 +10,10 @@
 set -e
 
 INSTALL_ZSH="${INSTALLZSH:-"true"}"
+ADDITIONAL_PACKAGES="${ADDITIONAL_PACKAGES:-""}"
 CONFIGURE_ZSH_AS_DEFAULT_SHELL="${CONFIGUREZSHASDEFAULTSHELL:-"false"}"
 INSTALL_OH_MY_ZSH="${INSTALLOHMYZSH:-"true"}"
 INSTALL_OH_MY_ZSH_CONFIG="${INSTALLOHMYZSHCONFIG:-"true"}"
-UPGRADE_PACKAGES="${UPGRADEPACKAGES:-"true"}"
 USERNAME="${USERNAME:-"automatic"}"
 USER_UID="${USERUID:-"automatic"}"
 USER_GID="${USERGID:-"automatic"}"
@@ -21,6 +21,23 @@ USER_GID="${USERGID:-"automatic"}"
 MARKER_FILE="/usr/local/etc/vscode-dev-containers/common"
 
 FEATURE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# ***********************
+# ** Utility functions **
+# ***********************
+
+UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
+
+# Check if the utility script exists
+if [ ! -f "$UTIL_SCRIPT" ]; then
+    echo "Cloning archlinux_util.sh from GitHub to $UTIL_SCRIPT"
+    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/devcontainer-features/main/scripts/archlinux_util.sh
+    chmod +x "$UTIL_SCRIPT"
+fi
+
+# Source the utility script
+# shellcheck disable=SC1090
+. "$UTIL_SCRIPT"
 
 # Arch Linux packages
 install_arch_packages() {
@@ -67,26 +84,26 @@ install_arch_packages() {
         if ! type git > /dev/null 2>&1; then
             package_list+=("git")
         fi
+
+        # Additonal packages (space separated string). Eg: "docker-compose kubectl"
+        if [ -n "${ADDITIONAL_PACKAGES}" ]; then
+            IFS=' ' read -r -a additional_pkgs <<< "${ADDITIONAL_PACKAGES}"
+            package_list+=("${additional_pkgs[@]}")
+        fi
+        
     fi
 
     # Install the list of packages
     echo "Packages to verify are installed: ${package_list[*]}"
-    pacman -Syu --needed --noconfirm "${package_list[@]}"
+    check_and_install_packages "${package_list[@]}"
 
     # Install zsh (and recommended packages) if needed
     if [ "${INSTALL_ZSH}" = "true" ] && ! type zsh > /dev/null 2>&1; then
-        pacman -S --noconfirm zsh
-    fi
-
-    # Get to latest versions of all packages
-    if [ "${UPGRADE_PACKAGES}" = "true" ]; then
-        pacman -Syu --noconfirm
+        check_and_install_packages "zsh"
     fi
 
     PACKAGES_ALREADY_INSTALLED="true"
 
-    # Clean up
-    pacman -Scc --noconfirm
 }
 
 
@@ -94,10 +111,8 @@ install_arch_packages() {
 # ** Main section **
 # ******************
 
-if [ "$(id -u)" -ne 0 ]; then
-    echo -e 'Script must be run as root. Use sudo, su, or add "USER root" to your Dockerfile before running this script.'
-    exit 1
-fi
+# Check if script is run as root
+check_root
 
 # Load markers to see which steps have already run
 if [ -f "${MARKER_FILE}" ]; then
@@ -115,20 +130,9 @@ chmod +x /etc/profile.d/00-restore-env.sh
 # Bring in ID, ID_LIKE, VERSION_ID, VERSION_CODENAME
 # shellcheck disable=SC1091
 . /etc/os-release
-# Get an adjusted ID independent of distro variants
-if [ "${ID}" = "arch" ] || [ "${ID_LIKE}" = "arch" ]; then
-    ADJUSTED_ID="arch"
-else
-    echo "Linux distro ${ID} not supported."
-    exit 1
-fi
 
 # Install packages for appropriate OS
-case "${ADJUSTED_ID}" in
-    "arch")
-        install_arch_packages
-        ;;
-esac
+install_arch_packages
 
 # If in automatic mode, determine if a user already exists, if not use vscode
 if [ "${USERNAME}" = "auto" ] || [ "${USERNAME}" = "automatic" ]; then
@@ -217,11 +221,7 @@ done
 
 # Add RC snippet and custom bash prompt
 if [ "${RC_SNIPPET_ALREADY_ADDED}" != "true" ]; then
-    case "${ADJUSTED_ID}" in
-        "arch")
-            global_rc_path="/etc/bash.bashrc"
-            ;;
-    esac
+    global_rc_path="/etc/bash.bashrc"
     cat "${FEATURE_DIR}/scripts/rc_snippet.sh" >> "${global_rc_path}"
     cat "${FEATURE_DIR}/scripts/bash_theme_snippet.sh" >> "${user_home}/.bashrc"
     if [ "${USERNAME}" != "root" ]; then
