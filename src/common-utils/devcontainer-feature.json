@@ -1,6 +1,6 @@
 {
     "id": "common-utils",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "name": "Common Utilities",
     "documentationURL": "https://github.com/bartventer/devcontainer-features/tree/main/src/common-utils",
     "licenseURL": "https://github.com/bartventer/devcontainer-features/blob/main/LICENSE",
