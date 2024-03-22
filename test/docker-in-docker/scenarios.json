@@ -1,0 +1,11 @@
+{
+    "docker_with_on_create_command": {
+        "image": "archlinux:latest",
+        "remoteUser": "vscode",
+        "features": {
+            "ghcr.io/bartventer/devcontainer-features/common-utils:1": {},
+            "docker-in-docker": {}
+        },
+        "onCreateCommand": "docker ps && sleep 5s && docker ps"
+    }
+}
