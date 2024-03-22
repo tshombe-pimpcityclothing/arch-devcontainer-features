@@ -3,7 +3,6 @@
 [![Release](https://img.shields.io/github/release/bartventer/devcontainer-features.svg)](https://github.com/bartventer/devcontainer-features/releases/latest)
 [![Release Workflow](https://github.com/bartventer/devcontainer-features/actions/workflows/release.yaml/badge.svg)](https://github.com/bartventer/devcontainer-features/actions/workflows/release.yaml)
 [![Test Workflow](https://github.com/bartventer/devcontainer-features/actions/workflows/test.yaml/badge.svg)](https://github.com/bartventer/devcontainer-features/actions/workflows/test.yaml)
-[![Validate Workflow](https://github.com/bartventer/devcontainer-features/actions/workflows/validate.yml/badge.svg)](https://github.com/bartventer/devcontainer-features/actions/workflows/validate.yml)
 [![License](https://img.shields.io/github/license/bartventer/devcontainer-features.svg)](LICENSE)
 
 <table style="width: 100%; border-style: none;">
@@ -27,6 +26,7 @@ This repository contains a _collection_ of features curated by [@bartventer](htt
 -   [Collected Features](#collected-features)
     -   [common-utils](#common-utils)
     -   [aws-cli](#aws-cli)
+    -   [docker-in-docker](#docker-in-docker)
 -   [Contributing](#contributing)
 -   [License](#license)
 -   [Trademarks](#trademarks)
@@ -64,13 +64,27 @@ AWS CLI installs the AWS CLI along with needed dependencies. Useful for base Doc
 
 ```json
 "features": {
-    "ghcr.io/bartventer/devcontainer-features/aws-cli:1.0.0": {
+    "ghcr.io/bartventer/devcontainer-features/aws-cli:1": {
         "version": "latest"
     }
 }
 ```
 
 Additional options can be found in the [feature documentation](src/aws-cli/README.md).
+
+### docker-in-docker
+
+Docker in Docker installs Docker and Docker Compose in a Docker container. This is useful for running Docker commands inside a Docker container.
+
+#### usage
+
+```json
+"features": {
+    "ghcr.io/bartventer/devcontainer-features/docker-in-docker:1": {
+        "version": "latest"
+    }
+}
+```
 
 ## Contributing
 
