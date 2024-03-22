@@ -1,10 +1,23 @@
-name: 'Release & Docs'
+name: 'Release'
 on:
+    pull_request:
+        types: [closed]
+        branches: [main]
+        paths: ['src/**']
     workflow_dispatch:
+        inputs:
+            imageName:
+                description: 'Image name'     
+                required: true
+                type: choice
+                options:
+                    - 'aws-cli'
+                    - 'common-utils'
+                    - 'docker-in-docker'
 
 jobs:
     deploy:
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.event.pull_request.merged == true && github.event.pull_request.user.login == vars.GH_ACTIONS_USERNAME || github.event_name == 'workflow_dispatch' }}
         runs-on: ubuntu-latest
         permissions:
             contents: write
@@ -12,35 +25,46 @@ jobs:
             packages: write
         steps:
             - uses: actions/checkout@v4
+            - name: 'Extract Image Name'
+              id: extract
+              if : ${{ github.event_name == 'pull_request' }}
+              run: |
+                PR_BODY="${{ github.event.pull_request.body }}"
+                IMAGE_NAME=$(echo "$PR_BODY" | grep -oP 'Image Name: \K\w+')
+                echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+                if [ -z "$IMAGE_NAME" ] || [[ "$PR_BODY" != *"Bump"* ]]; then
+                    echo "Error: Image name not found or PR does not include 'Bump' in PR body."
+                    echo "PR Body: $PR_BODY"
+                    echo "Please add 'Bump' and 'Image Name: <image-name>' in the PR body."
+                    exit 1
+                fi
 
             - name: 'Publish Features'
               uses: devcontainers/action@v1
+              env:
+                  IMAGE_NAME: ${{ steps.extract.outputs.IMAGE_NAME }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   publish-features: 'true'
-                  base-path-to-features: './src'
+                  base-path-to-features: './src/${{ env.IMAGE_NAME }}'
                   generate-docs: 'true'
-
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Create PR for Documentation
               id: push_image_info
               env:
+                  IMAGE_NAME: ${{ steps.extract.outputs.IMAGE_NAME }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   set -e
                   echo "Start."
-                  # Configure git and Push updates
-                  git config --global user.email github-actions[bot]@users.noreply.github.com
-                  git config --global user.name github-actions[bot]
+                  git config --global user.email ${{vars.GH_ACTIONS_USERNAME}}@users.noreply.github.com
+                  git config --global user.name ${{vars.GH_ACTIONS_USERNAME}}
                   git config pull.rebase false
                   branch=automated-documentation-update-$GITHUB_RUN_ID
                   git checkout -b $branch
                   message='Automated documentation update'
-                  # Add / update and commit
                   git add */**/README.md
-                  git commit -m 'docs(src): Automated documentation update [skip ci]' || export NO_UPDATES=true
-                  # Push
+                  git commit -m 'docs(src/${{ env.IMAGE_NAME }}): Automated documentation update [skip ci]' || export NO_UPDATES=true
                   if [ "$NO_UPDATES" != "true" ] ; then
                       git push origin "$branch"
                       gh pr create --title "$message" --body "$message"
