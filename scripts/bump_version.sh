@@ -149,10 +149,6 @@ update_version_file() {
     fi
 }
 
-get_github_workflow_url() {
-    echo "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/job/$GITHUB_JOB"
-}
-
 commit_push_and_create_pr() {
     local feature=$1
     local latest_version=$2
@@ -165,13 +161,17 @@ commit_push_and_create_pr() {
 - **Feature:** $feature
 - **Latest Version:** $latest_version
 - **New Version:** $new_version"
+
+    # Dry run
     if [ "$DRY_RUN" = "true" ]; then
         log_warn "Dry run enabled. Skipping commit, push and PR creation. Redirecting output to stdout.
                     \n::Commit message: $commit_message
                     \n::PR body: \n$body"
         return
     fi
-    workflow_url=$(get_github_workflow_url)
+
+    # GitHub runner
+    local workflow_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/job/$GITHUB_JOB"
     body="$body\n\n**Workflow Information:**
 - **GitHub Actor:** $GITHUB_ACTOR
 - **GitHub Repository:** $GITHUB_REPOSITORY
@@ -189,6 +189,11 @@ commit_push_and_create_pr() {
     git config --global user.name $GH_USERNAME
     git add "$feature/$VERSION_FILE_NAME" || { log_fatal "Failed to add changes"; }
     git commit -m "$commit_message" || { log_fatal "Failed to commit changes"; }
+    # Check if there are new commits
+    if git diff --quiet main..HEAD; then
+        log_warn "No new commits. Skipping pull request creation."
+        return
+    fi
     git push || { log_fatal "Failed to push changes"; }
     if ! gh pr create \
         --title "$commit_message" \
@@ -202,12 +207,15 @@ commit_push_and_create_pr() {
             gh issue create \
                 --title "$issue_title" \
                 --label "$ISSUE_LABEL" \
-                --body "An error occurred while trying to create a PR. Please check the logs.\n\nWorkflow URL: $(workflow_url)"
+                --assignee $GITHUB_ACTOR \
+                --body "An error occurred while trying to create a PR. Please check the logs.\n\nWorkflow URL: $workflow_url" || \
+                { log_fatal "Failed to create issue"; }
         else
             echo "An issue with the same title already exists. Updating the existing issue instead."
             issue_number=$(echo $existing_issue | cut -d' ' -f1)
             gh issue comment $issue_number \
-            --body "The workflow failed again. Please check the logs.\n\nWorkflow URL: $(workflow_url)"
+            --body "The workflow failed again. Please check the logs.\n\nWorkflow URL: $workflow_url" || \
+            { log_fatal "Failed to update issue"; }
         fi
     fi
 }
