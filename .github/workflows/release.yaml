@@ -30,12 +30,12 @@ jobs:
               if : ${{ github.event_name == 'pull_request' }}
               run: |
                 PR_BODY="${{ github.event.pull_request.body }}"
-                IMAGE_NAME=$(echo "$PR_BODY" | grep -oP 'Image Name: \K\w+')
+                IMAGE_NAME=$(echo "$PR_BODY" | grep -oP '${{vars.PR_BODY_IMAGE_KEY}}: \K\w+')
                 echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
-                if [ -z "$IMAGE_NAME" ] || [[ "$PR_BODY" != *"Bump"* ]]; then
-                    echo "Error: Image name not found or PR does not include 'Bump' in PR body."
+                if [ -z "$IMAGE_NAME" ] || [[ "$PR_BODY" != *"${{vars.PR_BODY_BUMP_KEY}}"* ]]; then
+                    echo "Error: Invalid PR body."
                     echo "PR Body: $PR_BODY"
-                    echo "Please add 'Bump' and 'Image Name: <image-name>' in the PR body."
+                    echo "Please add '${{vars.PR_BODY_BUMP_KEY}}' and '${{vars.PR_BODY_IMAGE_KEY}}: <image-name>' in the PR body."
                     exit 1
                 fi
 
