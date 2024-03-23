@@ -38,8 +38,8 @@ PR_BODY_IMAGE_KEY="${PR_BODY_IMAGE_KEY:-"IMAGE NAME"}"
 
 # Script variables
 VERSION_FILE_NAME="devcontainer-feature.json"
-NPM_DEPS=("jq" "semver")
-SYS_DEPS=("git" "curl")
+NPM_DEPS=("semver")
+SYS_DEPS=("git" "curl" "jq")
 DEFAULT_VERSION="0.0.0"
 INITIAL_VERSION="1.0.0"
 ISSUE_LABEL="bug"
