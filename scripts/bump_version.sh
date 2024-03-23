@@ -128,11 +128,7 @@ increment_version() {
 
 update_version_file() {
     local new_version=$1
-    local feature=$2
-    local version_file_path="$feature/$VERSION_FILE_NAME"
-    if [ "$CI" = "true" ]; then
-        version_file_path=${GITHUB_WORKSPACE}/$version_file_path
-    fi
+    local version_file_path=$2
     if [ ! -f $version_file_path ]; then
         log_fatal "Version file not found: $version_file_path"
     fi
@@ -153,6 +149,8 @@ commit_push_and_create_pr() {
     local feature=$1
     local latest_version=$2
     local new_version=$3
+    local version_file_path=$4
+
     local commit_message="chore(release/$(basename $feature)): bump version from $latest_version to $new_version"
     local body="_This is an auto-generated PR to bump the image version._
 \n\n$PR_BODY_BUMP_KEY version from $latest_version to $new_version
@@ -187,7 +185,8 @@ commit_push_and_create_pr() {
 - **GitHub Workflow URL:** $workflow_url"
     git config --global user.email $GH_USER_EMAIL
     git config --global user.name $GH_USERNAME
-    git add "$feature/$VERSION_FILE_NAME" || { log_fatal "Failed to add changes"; }
+    git add "$version_file_path" || { log_fatal "Failed to add changes"; }
+    git --no-pager diff --staged
     git commit -m "$commit_message" || { log_fatal "Failed to commit changes"; }
     # Check if there are new commits
     if git diff --quiet main..HEAD; then
@@ -257,11 +256,15 @@ main() {
         log_info "✔ OK. New version: $new_version"
 
         log_info "ℹ️ Updating version file..."
-        update_version_file $new_version $feature
+        version_file_path="$feature/$VERSION_FILE_NAME"
+        if [ "$CI" = "true" ]; then
+            version_file_path=${GITHUB_WORKSPACE}/$version_file_path
+        fi
+        update_version_file $new_version $version_file_path
         log_info "✔ OK. Version file updated."
 
         log_info "Committing, pushing changes and creating PR..."
-        commit_push_and_create_pr $feature $latest_version $new_version
+        commit_push_and_create_pr $feature $latest_version $new_version $version_file_path
         log_info "✔ OK. Changes committed, pushed and PR created."
     done
 }
