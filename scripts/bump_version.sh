@@ -24,8 +24,7 @@
 
 set -euo pipefail
 
-BASE_BRANCH=${1:-"main"}
-DRY_RUN=${2:-"false"}
+DRY_RUN=${1:-"false"}
 
 # GitHub Actions environment variables
 CI=${CI:-"false"}
@@ -185,19 +184,15 @@ commit_push_and_create_pr() {
 - **GitHub Workflow URL:** $workflow_url"
     git config --global user.email $GH_USER_EMAIL
     git config --global user.name $GH_USERNAME
+    git config pull.rebase false
+    local branch_name="bump-version-$GITHUB_RUN_ID-$(basename $feature)"
+    git checkout -b "$branch_name"
     git add "$version_file_path" || { log_fatal "Failed to add changes"; }
-    git --no-pager diff --staged
     git commit -m "$commit_message" || { log_fatal "Failed to commit changes"; }
-    # Check if there are new commits
-    if git diff --quiet main..HEAD; then
-        log_warn "No new commits. Skipping pull request creation."
-        return
-    fi
-    git push || { log_fatal "Failed to push changes"; }
+    git push origin $branch_name || { log_fatal "Failed to push changes"; }
     if ! gh pr create \
         --title "$commit_message" \
         --body "$body" \
-        --base $BASE_BRANCH \
         --head "$(git rev-parse --abbrev-ref HEAD)"; then
         echo "Failed to create PR. Creating an issue instead."
         issue_title="Failed to create PR: $commit_message"
@@ -206,7 +201,6 @@ commit_push_and_create_pr() {
             gh issue create \
                 --title "$issue_title" \
                 --label "$ISSUE_LABEL" \
-                --assignee $GITHUB_ACTOR \
                 --body "An error occurred while trying to create a PR. Please check the logs.\n\nWorkflow URL: $workflow_url" || \
                 { log_fatal "Failed to create issue"; }
         else

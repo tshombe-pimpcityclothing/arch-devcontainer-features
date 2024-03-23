@@ -2,7 +2,6 @@
 .ONESHELL:
 
 # Bump version variables
-BASE_BRANCH ?= "main"
 DRY_RUN ?= "false"
 
 # Devcontainer variables
@@ -41,5 +40,5 @@ test-scenarios: ## Run scenario tests for a specific feature. Argument: FEATURES
 	$(DEVCONTAINER_TEST) $(DEVCONTAINER_TEST_SCENARIOS_FLAGS) $(PATH_TO_RUN)
 
 .PHONY: bump-version
-bump-version: ## Run bump_version.sh script. Arguments: BASE_BRANCH, DRY_RUN.
-	./scripts/bump_version.sh $(BASE_BRANCH) $(DRY_RUN)
+bump-version: ## Run bump_version.sh script. Arguments: DRY_RUN.
+	./scripts/bump_version.sh $(DRY_RUN)
