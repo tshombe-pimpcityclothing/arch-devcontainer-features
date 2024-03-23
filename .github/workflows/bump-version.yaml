@@ -32,5 +32,4 @@ jobs:
           PR_BODY_BUMP_KEY: ${{ vars.PR_BODY_BUMP_KEY }}
           PR_BODY_IMAGE_KEY: ${{ vars.PR_BODY_IMAGE_KEY }}
         run: |
-          BRANCH_NAME=${GITHUB_REF#refs/heads/}
-          ./scripts/bump_version.sh "$BRANCH_NAME"
+          make bump-version

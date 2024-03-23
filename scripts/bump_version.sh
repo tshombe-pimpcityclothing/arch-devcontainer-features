@@ -9,7 +9,7 @@
 #
 # This script will: 
 # 
-# Install the necessary tools ( jq ,  gh ,  semver ) 
+# Install the necessary tools (npm and system dependencies[git, curl, jq])
 # Get the commit type 
 # Get the equivalent version increment
 # Get the latest version 
@@ -89,13 +89,12 @@ install_tools() {
 get_version_increment() {
     local feature_name=$(basename $feature)
     local last_tag=$(git describe --tags --abbrev=0)
-    local previous_tag=$(git describe --tags --abbrev=0 $last_tag^)
-    local commit_types=$(git log --pretty=%B $previous_tag..$last_tag -- src/$feature_name | grep -oE '^(feat|fix|BREAKING CHANGE)')
-    if echo $commit_types | grep -q 'BREAKING CHANGE'; then
+    local commit_messages=$(git log --pretty=format:"%s%n%n%b" $last_tag..HEAD -- src/$feature_name)
+    if echo "$commit_messages" | grep -qE 'BREAKING CHANGE'; then
         echo 'major'
-    elif echo $commit_types | grep -q 'feat'; then
+    elif echo "$commit_messages" | grep -qE '^feat(\(.+\))?:'; then
         echo 'minor'
-    elif echo $commit_types | grep -q 'fix'; then
+    elif echo "$commit_messages" | grep -qE '^fix(\(.+\))?:'; then
         echo 'patch'
     else
         echo ''
@@ -111,7 +110,8 @@ get_latest_version() {
     if [ -z "$tags" ]; then
         echo $DEFAULT_VERSION
     else
-        echo $tags | tr ' ' '\n' | sort -V | tail -n 1
+        # Filter out non-numeric tags, sort the remaining tags, and select the last one
+        echo $tags | tr ' ' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1
     fi
 }
 
@@ -240,14 +240,13 @@ main() {
     for feature in src/*; do
         feature_name=$(basename $feature)
         echo
-        log_info "ℹ️ Checking if files in $feature_name were changed in the last tag..."
         last_tag=$(git describe --tags --abbrev=0)
-        previous_tag=$(git describe --tags --abbrev=0 $last_tag^)
-        if ! git diff --name-only $previous_tag $last_tag | grep -q "$feature_name"; then
-            log_info "No changes for $feature_name in the last tag. Skipping version bump."
+        log_info "ℹ️ [\033[1;36m$feature_name\033[0m] \033[1;32m[$last_tag]\033[0m Checking for diffs..."
+        if ! git diff --name-only $last_tag..HEAD -- $feature_name | grep -q "$feature_name"; then
+            log_info "No changes detected. Skipping version bump."
             continue
         fi
-        log_warn "OK. Changes found for $feature in the last tag."
+        log_warn "OK. Changes found for $feature in the current tag."
 
         log_info "ℹ️ Getting version increment..."
         version_increment=$(get_version_increment)
