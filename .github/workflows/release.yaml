@@ -5,15 +5,6 @@ on:
         branches: [main]
         paths: ['src/**']
     workflow_dispatch:
-        inputs:
-            imageName:
-                description: 'Image name'     
-                required: true
-                type: choice
-                options:
-                    - 'aws-cli'
-                    - 'common-utils'
-                    - 'docker-in-docker'
 
 jobs:
     deploy:
@@ -26,34 +17,18 @@ jobs:
             packages: write
         steps:
             - uses: actions/checkout@v4
-            - name: 'Extract Image Name'
-              id: extract
-              if : ${{ github.event_name == 'pull_request' }}
-              run: |
-                PR_BODY="${{ github.event.pull_request.body }}"
-                IMAGE_NAME=$(echo "$PR_BODY" | grep -oP '${{vars.PR_BODY_IMAGE_KEY}}: \K\w+')
-                echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
-                if [ -z "$IMAGE_NAME" ] || [[ "$PR_BODY" != *"${{vars.PR_BODY_BUMP_KEY}}"* ]]; then
-                    echo "Error: Invalid PR body."
-                    echo "PR Body: $PR_BODY"
-                    echo "Please add '${{vars.PR_BODY_BUMP_KEY}}' and '${{vars.PR_BODY_IMAGE_KEY}}: <image-name>' in the PR body."
-                    exit 1
-                fi
-
             - name: 'Publish Features'
               uses: devcontainers/action@v1
               env:
-                  IMAGE_NAME: ${{ steps.extract.outputs.IMAGE_NAME }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   publish-features: 'true'
-                  base-path-to-features: './src/${{ env.IMAGE_NAME }}'
+                  base-path-to-features: './src'
                   generate-docs: 'true'
 
             - name: Create PR for Documentation
               id: push_image_info
               env:
-                  IMAGE_NAME: ${{ steps.extract.outputs.IMAGE_NAME }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   set -e
@@ -65,7 +40,7 @@ jobs:
                   git checkout -b $branch
                   message='Automated documentation update'
                   git add */**/README.md
-                  git commit -m 'docs(src/${{ env.IMAGE_NAME }}): Automated documentation update [skip ci]' || export NO_UPDATES=true
+                  git commit -m 'docs(src/all): Automated documentation update [skip ci]' || export NO_UPDATES=true
                   if [ "$NO_UPDATES" != "true" ] ; then
                       git push origin "$branch"
                       gh pr create --title "$message" --body "$message"

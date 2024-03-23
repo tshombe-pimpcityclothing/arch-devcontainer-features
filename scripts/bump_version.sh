@@ -151,13 +151,16 @@ commit_push_and_create_pr() {
     local version_file_path=$4
 
     local commit_message="chore(release/$(basename $feature)): bump version from $latest_version to $new_version"
-    local body="_This is an auto-generated PR to bump the image version._
-\n\n$PR_BODY_BUMP_KEY version from $latest_version to $new_version
-\n\n$PR_BODY_IMAGE_KEY: $(basename $feature)
-\n\n**Bump Information:**
-- **Feature:** $feature
-- **Latest Version:** $latest_version
-- **New Version:** $new_version"
+    local body="## :robot: This is an auto-generated PR to bump the image version.
+
+**$PR_BODY_BUMP_KEY** version from \`$latest_version\` to \`$new_version\`
+
+**$PR_BODY_IMAGE_KEY:** \`$(basename $feature)\`
+
+### Bump Information:
+- **Feature:** \`$feature\`
+- **Latest Version:** \`$latest_version\`
+- **New Version:** \`$new_version\`"
 
     # Dry run
     if [ "$DRY_RUN" = "true" ]; then
@@ -168,25 +171,31 @@ commit_push_and_create_pr() {
     fi
 
     # GitHub runner
-    local workflow_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/job/$GITHUB_JOB"
-    body="$body\n\n**Workflow Information:**
-- **GitHub Actor:** $GITHUB_ACTOR
-- **GitHub Repository:** $GITHUB_REPOSITORY
-- **GitHub Triggering Actor:** $GITHUB_TRIGGERING_ACTOR
-- **GitHub Run ID:** $GITHUB_RUN_ID
-- **GitHub Workflow:** $GITHUB_WORKFLOW
-- **GitHub Job:** $GITHUB_JOB
-- **GitHub Run ID:** $GITHUB_RUN_ID
-- **GitHub Run Number:** $GITHUB_RUN_NUMBER
-- **GitHub Run Attempt:** $GITHUB_RUN_ATTEMPT
-- **GitHub Event Name:** $GITHUB_EVENT_NAME
-- **GitHub Runner OS:** $RUNNER_OS
-- **GitHub Workflow URL:** $workflow_url"
+    local workflow_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+    local workflow_info="### Workflow Information:
+- **GitHub Actor:** \`$GITHUB_ACTOR\`
+- **GitHub Repository:** \`$GITHUB_REPOSITORY\`
+- **GitHub Triggering Actor:** \`$GITHUB_TRIGGERING_ACTOR\`
+- **GitHub Workflow:** \`$GITHUB_WORKFLOW\`
+- **GitHub Job:** \`$GITHUB_JOB\`
+- **GitHub Run Number:** \`$GITHUB_RUN_NUMBER\`
+- **GitHub Run Attempt:** \`$GITHUB_RUN_ATTEMPT\`
+- **GitHub Event Name:** \`$GITHUB_EVENT_NAME\`
+- **GitHub Runner OS:** \`$RUNNER_OS\`
+- **GitHub Workflow URL:** [$workflow_url]($workflow_url)"
+
+    body="$body\n$workflow_info"
+
     git config --global user.email $GH_USER_EMAIL
     git config --global user.name $GH_USERNAME
     git config pull.rebase false
-    local branch_name="bump-version-$GITHUB_RUN_ID-$(basename $feature)"
-    git checkout -b "$branch_name"
+    local branch_name="bump-$(basename $feature)"
+    git show-ref --verify --quiet refs/heads/$branch_name
+    if [ $? -eq 0 ]; then
+        git checkout $branch_name
+    else
+        git checkout -b $branch_name
+    fi
     git add "$version_file_path" || { log_fatal "Failed to add changes"; }
     git commit -m "$commit_message" || { log_fatal "Failed to commit changes"; }
     git push origin $branch_name || { log_fatal "Failed to push changes"; }
@@ -198,10 +207,17 @@ commit_push_and_create_pr() {
         issue_title="Failed to create PR: $commit_message"
         existing_issue=$(gh issue list --label "$ISSUE_LABEL" --state open --search "$issue_title")
         if [ -z "$existing_issue" ]; then
+            issue_body="## :x: An error occurred while trying to create a PR.
+
+### Error Details:
+Please check the logs for more information.
+
+$workflow_info"
+
             gh issue create \
                 --title "$issue_title" \
                 --label "$ISSUE_LABEL" \
-                --body "An error occurred while trying to create a PR. Please check the logs.\n\nWorkflow URL: $workflow_url" || \
+                --body "$issue_body" || \
                 { log_fatal "Failed to create issue"; }
         else
             echo "An issue with the same title already exists. Updating the existing issue instead."
