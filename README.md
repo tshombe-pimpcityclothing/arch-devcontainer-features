@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD024 -->
 # Dev Container Features
 
 [![Release](https://img.shields.io/github/release/bartventer/devcontainer-features.svg)](https://github.com/bartventer/devcontainer-features/releases/latest)
@@ -5,6 +6,7 @@
 [![Test Workflow](https://github.com/bartventer/devcontainer-features/actions/workflows/test.yaml/badge.svg)](https://github.com/bartventer/devcontainer-features/actions/workflows/test.yaml)
 [![License](https://img.shields.io/github/license/bartventer/devcontainer-features.svg)](LICENSE)
 
+<!-- markdownlint-disable MD033 -->
 <table style="width: 100%; border-style: none;">
     <tr>
         <td style="width: 140px; text-align: center;">
@@ -18,18 +20,19 @@
         </td>
     </tr>
 </table>
+<!-- markdownlint-enable MD033 -->
 
 This repository contains a _collection_ of features curated by [@bartventer](https://github.com/bartventer). While most of these features are built for Arch Linux, please refer to the "OS Support" section of each feature for specific operating system compatibility.
 
 ## Table of Contents
 
--   [Collected Features](#collected-features)
-    -   [common-utils](#common-utils)
-    -   [aws-cli](#aws-cli)
-    -   [docker-in-docker](#docker-in-docker)
--   [Contributing](#contributing)
--   [License](#license)
--   [Trademarks](#trademarks)
+- [Collected Features](#collected-features)
+  - [common-utils](#common-utils)
+  - [aws-cli](#aws-cli)
+  - [docker-in-docker](#docker-in-docker)
+- [Contributing](#contributing)
+- [License](#license)
+- [Trademarks](#trademarks)
 
 ## Collected Features
 
