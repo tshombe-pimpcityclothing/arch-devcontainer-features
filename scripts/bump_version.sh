@@ -27,18 +27,39 @@ set -euo pipefail
 BASE_BRANCH=${1:-"main"}
 DRY_RUN=${2:-"false"}
 
+# GitHub Actions environment variables
 CI=${CI:-"false"}
+GITHUB_WORKSPACE=${GITHUB_WORKSPACE:-"."}
+# GitHub Actions repository variables
 GH_USERNAME="${GH_ACTIONS_USERNAME:-"github-actions[bot]"}"
 GH_USER_EMAIL="$GH_USERNAME@users.noreply.github.com"
 PR_BODY_BUMP_KEY="${PR_BODY_BUMP_KEY:-"BUMP"}"
 PR_BODY_IMAGE_KEY="${PR_BODY_IMAGE_KEY:-"IMAGE NAME"}"
 
+# Script variables
 VERSION_FILE_NAME="devcontainer-feature.json"
 NPM_DEPS=("jq" "semver")
 SYS_DEPS=("git" "curl")
 DEFAULT_VERSION="0.0.0"
 INITIAL_VERSION="1.0.0"
 ISSUE_LABEL="bug"
+
+log_info() {
+    echo -e "(\033[1;34m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;34mINFO\033[0m] $1"
+}
+
+log_warn() {
+    echo -e "(\033[1;33m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;33mWARN\033[0m] 🔔 \033[0;33m$1\033[0m" >&2
+}
+
+log_error() {
+    echo -e "(\033[1;31m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;31mERROR\033[0m] ❕ \033[0;31m$1\033[0m" >&2
+}
+
+log_fatal() {
+    echo -e "(\033[1;31m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;31mFATAL\033[0m] ❌ \033[0;31m$1\033[0m" >&2
+    exit 1
+}
 
 install_tools() {
     local missing_deps=0
@@ -110,9 +131,16 @@ update_version_file() {
     local feature=$2
     local version_file_path="$feature/$VERSION_FILE_NAME"
     if [ "$CI" = "true" ]; then
+        version_file_path=${GITHUB_WORKSPACE}/$version_file_path
+    fi
+    if [ ! -f $version_file_path ]; then
+        log_fatal "Version file not found: $version_file_path"
+    fi
+    log_info "==> Version file path: $version_file_path"
+    if [ "$CI" = "true" ]; then
         jq --arg new_version "$new_version" '.version |= $new_version' $version_file_path > "$version_file_path.tmp" && \
             mv "$version_file_path.tmp" $version_file_path \
-            || { echo "Failed to update version file"; exit 1; }
+            || { log_fatal "Failed to update version file"; }
     else
         log_warn "Dry run enabled. Redirecting output to stdout. \
                     \n::feature: $feature \
@@ -155,7 +183,7 @@ commit_push_and_create_pr() {
     git config --global user.name $GH_USERNAME
     git add "$feature/$VERSION_FILE_NAME"
     git commit -m "$commit_message"
-    git push || { echo "Failed to push changes"; exit 1; }
+    git push || { log_fatal "Failed to push changes"; }
     if ! gh pr create \
         --title "$commit_message" \
         --body "$body" \
@@ -177,23 +205,6 @@ commit_push_and_create_pr() {
     fi
 }
 
-log_info() {
-    echo -e "(\033[1;34m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;34mINFO\033[0m] $1"
-}
-
-log_warn() {
-    echo -e "(\033[1;33m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;33mWARN\033[0m] \033[0;33m$1\033[0m" >&2
-}
-
-log_error() {
-    echo -e "(\033[1;31m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;31mERROR\033[0m] \033[0;31m$1\033[0m" >&2
-}
-
-log_fatal() {
-    echo -e "(\033[1;31m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;31mFATAL\033[0m] ❌ \033[0;31m$1\033[0m" >&2
-    exit 1
-}
-
 main() {
     if [ "$DRY_RUN" = "true" ]; then
         log_warn "Running in dry run mode. No changes will be made."
@@ -209,10 +220,10 @@ main() {
         last_tag=$(git describe --tags --abbrev=0)
         previous_tag=$(git describe --tags --abbrev=0 $last_tag^)
         if ! git diff --name-only $previous_tag $last_tag | grep -q "$feature_name"; then
-            log_warn "No changes for $feature_name in the last tag. Skipping version bump."
+            log_info "No changes for $feature_name in the last tag. Skipping version bump."
             continue
         fi
-        log_info "OK. Changes found for $feature in the last tag."
+        log_warn "OK. Changes found for $feature in the last tag."
 
         log_info "Getting version increment..."
         version_increment=$(get_version_increment)

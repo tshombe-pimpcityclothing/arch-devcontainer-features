@@ -17,6 +17,7 @@ on:
 
 jobs:
     deploy:
+        name: 'Deploy'
         if: ${{ github.event.pull_request.merged == true && github.event.pull_request.user.login == vars.GH_ACTIONS_USERNAME || github.event_name == 'workflow_dispatch' }}
         runs-on: ubuntu-latest
         permissions:
