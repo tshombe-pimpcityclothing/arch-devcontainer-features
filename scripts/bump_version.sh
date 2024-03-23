@@ -187,8 +187,8 @@ commit_push_and_create_pr() {
 - **GitHub Workflow URL:** $workflow_url"
     git config --global user.email $GH_USER_EMAIL
     git config --global user.name $GH_USERNAME
-    git add "$feature/$VERSION_FILE_NAME"
-    git commit -m "$commit_message"
+    git add "$feature/$VERSION_FILE_NAME" || { log_fatal "Failed to add changes"; }
+    git commit -m "$commit_message" || { log_fatal "Failed to commit changes"; }
     git push || { log_fatal "Failed to push changes"; }
     if ! gh pr create \
         --title "$commit_message" \
@@ -230,7 +230,7 @@ main() {
             log_info "No changes for $feature_name in the last tag. Skipping version bump."
             continue
         fi
-        log_warn "✔ OK. Changes found for $feature in the last tag."
+        log_warn "OK. Changes found for $feature in the last tag."
 
         log_info "ℹ️ Getting version increment..."
         version_increment=$(get_version_increment)
