@@ -149,6 +149,10 @@ update_version_file() {
     fi
 }
 
+get_github_workflow_url() {
+    echo "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/job/$GITHUB_JOB"
+}
+
 commit_push_and_create_pr() {
     local feature=$1
     local latest_version=$2
@@ -167,6 +171,7 @@ commit_push_and_create_pr() {
                     \n::PR body: \n$body"
         return
     fi
+    workflow_url=$(get_github_workflow_url)
     body="$body\n\n**Workflow Information:**
 - **GitHub Actor:** $GITHUB_ACTOR
 - **GitHub Repository:** $GITHUB_REPOSITORY
@@ -178,7 +183,8 @@ commit_push_and_create_pr() {
 - **GitHub Run Number:** $GITHUB_RUN_NUMBER
 - **GitHub Run Attempt:** $GITHUB_RUN_ATTEMPT
 - **GitHub Event Name:** $GITHUB_EVENT_NAME
-- **GitHub Runner OS:** $RUNNER_OS"
+- **GitHub Runner OS:** $RUNNER_OS
+- **GitHub Workflow URL:** $workflow_url"
     git config --global user.email $GH_USER_EMAIL
     git config --global user.name $GH_USERNAME
     git add "$feature/$VERSION_FILE_NAME"
@@ -196,11 +202,12 @@ commit_push_and_create_pr() {
             gh issue create \
                 --title "$issue_title" \
                 --label "$ISSUE_LABEL" \
-                --body "An error occurred while trying to create a PR. Please check the logs.\n\n$additional_info"
+                --body "An error occurred while trying to create a PR. Please check the logs.\n\nWorkflow URL: $(workflow_url)"
         else
             echo "An issue with the same title already exists. Updating the existing issue instead."
             issue_number=$(echo $existing_issue | cut -d' ' -f1)
-            gh issue comment $issue_number --body "The workflow failed again. Please check the logs."
+            gh issue comment $issue_number \
+            --body "The workflow failed again. Please check the logs.\n\nWorkflow URL: $(workflow_url)"
         fi
     fi
 }
@@ -209,45 +216,45 @@ main() {
     if [ "$DRY_RUN" = "true" ]; then
         log_warn "Running in dry run mode. No changes will be made."
     fi
-    log_info "Installing dependencies..."
+    log_info "ℹ️ Installing dependencies..."
     install_tools
-    log_info "OK. Dependencies installed."
+    log_info "✔ OK. Dependencies installed."
 
     for feature in src/*; do
         feature_name=$(basename $feature)
         echo
-        log_info "Checking if files in $feature_name were changed in the last tag..."
+        log_info "ℹ️ Checking if files in $feature_name were changed in the last tag..."
         last_tag=$(git describe --tags --abbrev=0)
         previous_tag=$(git describe --tags --abbrev=0 $last_tag^)
         if ! git diff --name-only $previous_tag $last_tag | grep -q "$feature_name"; then
             log_info "No changes for $feature_name in the last tag. Skipping version bump."
             continue
         fi
-        log_warn "OK. Changes found for $feature in the last tag."
+        log_warn "✔ OK. Changes found for $feature in the last tag."
 
-        log_info "Getting version increment..."
+        log_info "ℹ️ Getting version increment..."
         version_increment=$(get_version_increment)
         if [ -z "$version_increment" ]; then
             log_warn "No valid commit type found. Skipping version bump."
             continue
         fi
-        log_info "OK. Version increment: $version_increment"
+        log_info "✔ OK. Version increment: $version_increment"
 
-        log_info "Getting latest version..."
+        log_info "ℹ️ Getting latest version..."
         latest_version=$(get_latest_version $feature)
-        log_info "OK. Latest version: $latest_version"
+        log_info "✔ OK. Latest version: $latest_version"
 
-        log_info "Incrementing version..."
+        log_info "ℹ️ Incrementing version..."
         new_version=$(increment_version $version_increment $latest_version)
-        log_info "OK. New version: $new_version"
+        log_info "✔ OK. New version: $new_version"
 
-        log_info "Updating version file..."
+        log_info "ℹ️ Updating version file..."
         update_version_file $new_version $feature
-        log_info "OK. Version file updated."
+        log_info "✔ OK. Version file updated."
 
         log_info "Committing, pushing changes and creating PR..."
         commit_push_and_create_pr $feature $latest_version $new_version
-        log_info "OK. Changes committed, pushed and PR created."
+        log_info "✔ OK. Changes committed, pushed and PR created."
     done
 }
 
