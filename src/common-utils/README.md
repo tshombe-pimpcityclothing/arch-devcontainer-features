@@ -53,4 +53,4 @@ This project makes use of code from the [devcontainers/features](https://github.
 
 ---
 
-_Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/bartventer/devcontainer-features/blob/main/src//common-utils/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._
+_Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/bartventer/devcontainer-features/blob/main/src/common-utils/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._
