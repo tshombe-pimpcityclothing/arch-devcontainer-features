@@ -77,7 +77,7 @@ jobs:
     
     bump-images:
         needs: [validate]
-        name: 'Bump Image Version'
+        name: 'Create PR for Image Version'
         runs-on: ubuntu-latest
         permissions:
           contents: write
