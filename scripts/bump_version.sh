@@ -44,6 +44,7 @@ SYS_DEPS=("git" "curl" "jq")
 DEFAULT_VERSION="0.0.0"
 INITIAL_VERSION="1.0.0"
 ISSUE_LABEL="bug"
+FEATURE_DIR="src"
 
 # Terminal colors
 BLUE="\033[1;34m"
@@ -108,9 +109,9 @@ install_tools() {
 }
 
 get_version_increment() {
-    local feature_name=$(basename $feature)
-    local last_tag=$(git describe --tags --abbrev=0)
-    local commit_messages=$(git log --pretty=format:"%s%n%n%b" $last_tag..HEAD -- src/$feature_name)
+    local feature_name=$1
+    local current_tag=$2
+    local commit_messages=$(git log --pretty=format:"%s%n%n%b" $current_tag..HEAD -- $FEATURE_DIR/$feature_name)
     if echo "$commit_messages" | grep -qE 'BREAKING CHANGE'; then
         echo 'major'
     elif echo "$commit_messages" | grep -qE '^feat(\(.+\))?:'; then
@@ -159,8 +160,8 @@ update_version_file() {
             || { log_fatal "Failed to update version file"; }
     else
         log_warn "Dry run enabled. Redirecting output to stdout. \
-                    \n::feature: $feature \
-                    \n::new_version: $new_version"
+                    \n :: feature: $feature \
+                    \n :: new_version: $new_version"
         jq --arg new_version "$new_version" '.version |= $new_version' $version_file_path
     fi
 }
@@ -174,10 +175,10 @@ commit_push_and_create_pr() {
     # Commit message and PR body (differentiate between initial release and subsequent releases)
     local commit_message
     local body="## :robot: This is an auto-generated PR to bump the image version.
-- **Feature:** \`$feature\`"
+- **Feature:** \`$(basename $feature)\`"
     if [ "$new_version" = "$INITIAL_VERSION" ]; then
         commit_message="chore(release/$(basename $feature)): initial release"
-        body="$body\n- **New Version:** \`$new_version\`"
+        body="$body\n- **Version:** \`$new_version\`"
     else
         commit_message="chore(release/$(basename $feature)): bump version from $latest_version to $new_version"
         body="$body\n- **Latest Version:** \`$latest_version\`\n- **New Version:** \`$new_version\`"
@@ -187,8 +188,8 @@ commit_push_and_create_pr() {
     # Dry run
     if [ "$DRY_RUN" = "true" ]; then
         log_warn "Dry run enabled. Skipping commit, push and PR creation. Redirecting output to stdout.
-                    \n::Commit message: $commit_message
-                    \n::PR body: \n$body"
+                    \n :: Commit message: $commit_message
+                    \n :: PR body: \n$body"
         return
     fi
 
@@ -253,21 +254,21 @@ main() {
     install_tools
     log_checkpoint "OK. Dependencies installed."
 
-    for feature in src/*; do
+    current_tag=$(git describe --tags --abbrev=0) || { log_fatal "Failed to get the last tag"; }
+    for feature in $FEATURE_DIR/*; do
         feature_name=$(basename $feature)
-        echo
-        last_tag=$(git describe --tags --abbrev=0) || { log_fatal "Failed to get the last tag"; }
-        log_info "[${CYAN}${feature_name}${RESET}] [tag: ${GREEN}${last_tag}${RESET}] Checking for diffs..."
-        if ! git diff --name-only $last_tag..HEAD -- "$feature_name" | grep -q "$feature_name"; then
+        log_info "[${CYAN}${feature_name}${RESET}] [tag: ${GREEN}${current_tag}${RESET}] Checking for diffs..."
+        if ! git diff --name-only $current_tag..HEAD | grep -q "${FEATURE_DIR}/$feature_name"; then
             log_checkpoint "No changes detected. Skipping version bump."
             continue
         fi
         log_warn "OK. Changes detected."
 
         log_info "Getting version increment..."
-        version_increment=$(get_version_increment)
+        version_increment=$(get_version_increment "$feature_name" "$current_tag") \
+            || { log_fatal "Failed to get version increment"; }
         if [ -z "$version_increment" ]; then
-            log_warn "No valid commit type found. Skipping version bump."
+            log_checkpoint "No valid commit type found. Skipping version bump."
             continue
         fi
         log_checkpoint "OK. Version increment: $version_increment"
