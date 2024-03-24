@@ -30,6 +30,7 @@ This repository contains a _collection_ of features curated by [@bartventer](htt
   - [common-utils](#common-utils)
   - [aws-cli](#aws-cli)
   - [docker-in-docker](#docker-in-docker)
+  - [docker-outside-of-docker](#docker-outside-of-docker)
 - [Contributing](#contributing)
 - [License](#license)
 - [Trademarks](#trademarks)
@@ -88,6 +89,25 @@ Docker in Docker installs Docker and Docker Compose in a Docker container. This 
     }
 }
 ```
+
+### docker-outside-of-docker
+
+Docker outside of Docker re-uses the host docker socket, adding the Docker CLI to a container. This feature invokes a script to enable using a forwarded Docker socket within a container to run Docker commands.
+
+#### usage
+
+```json
+"features": {
+    "ghcr.io/bartventer/devcontainer-features/docker-outside-of-docker:0.1.0": {
+        "version": "latest",
+        "dockerDashComposeVersion": "v2",
+        "installDockerBuildx": true,
+        "installDockerComposeSwitch": true
+    }
+}
+```
+
+Additional options can be found in the [feature documentation](src/docker-outside-of-docker/README.md).
 
 ## Contributing
 
