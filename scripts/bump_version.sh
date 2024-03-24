@@ -9,17 +9,21 @@
 #
 # This script will: 
 # 
-# Install the necessary tools (npm and system dependencies[git, curl, jq])
-# Get the commit type 
-# Get the equivalent version increment
-# Get the latest version 
-# Increment the version 
-# Update the version file 
-# Commit, push changes and create a PR 
+# 1. Check if the script is running in dry run mode. If so, it will log a warning and make no changes.
+# 2. Install the necessary tools (npm and system dependencies[git, curl, jq]).
+# 3. Iterate over each feature in the src directory.
+# 4. For each feature, it will:
+#    - Get the last git tag.
+#    - Check for diffs between the last tag and the HEAD for the feature. If no changes are detected, it will skip the version bump for this feature.
+#    - Get the version increment based on the commit type. If no valid commit type is found, it will skip the version bump for this feature.
+#    - Get the latest version of the feature.
+#    - Increment the version.
+#    - Update the version file.
+#    - Commit the changes, push them, and create a PR.
 # 
 # You can run this script manually or set up a GitHub Action to run it automatically. 
 # Here is an example of a GitHub Action that runs the script: 
-# Path: .github/workflows/bump_version.yml
+# Path: .github/workflows/bump-version.yml
 #-----------------------------------------------------------------------------------------------------------------
 
 set -euo pipefail
@@ -32,38 +36,55 @@ GITHUB_WORKSPACE=${GITHUB_WORKSPACE:-"."}
 # GitHub Actions repository variables
 GH_USERNAME="${GH_ACTIONS_USERNAME:-"github-actions[bot]"}"
 GH_USER_EMAIL="$GH_USERNAME@users.noreply.github.com"
-PR_BODY_BUMP_KEY="${PR_BODY_BUMP_KEY:-"BUMP"}"
-PR_BODY_IMAGE_KEY="${PR_BODY_IMAGE_KEY:-"IMAGE NAME"}"
 
 # Script variables
 VERSION_FILE_NAME="devcontainer-feature.json"
-NPM_DEPS=("semver")
+JS_DEPS=("semver")
 SYS_DEPS=("git" "curl" "jq")
 DEFAULT_VERSION="0.0.0"
 INITIAL_VERSION="1.0.0"
 ISSUE_LABEL="bug"
 
-log_info() {
-    echo -e "(\033[1;34m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;34mINFO\033[0m] $1"
+# Terminal colors
+BLUE="\033[1;34m"
+GREEN="\033[1;32m"
+YELLOW="\033[1;33m"
+RED="\033[1;31m"
+RESET="\033[0m"
+CYAN="\033[1;36m"
+
+log_message() {
+    local symbol=$1
+    shift
+    echo -e "(${BLUE}$(date '+%Y-%m-%d %H:%M:%S')${RESET}) [${BLUE}INFO${RESET}] ${symbol} $1"
 }
 
+log_info() {
+    log_message "ℹ️" "$1"
+}
+
+log_checkpoint() {
+    log_message "✔" "$1"
+}
+
+
 log_warn() {
-    echo -e "(\033[1;33m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;33mWARN\033[0m] 🔔 \033[0;33m$1\033[0m" >&2
+    echo -e "(${YELLOW}$(date '+%Y-%m-%d %H:%M:%S')${RESET}) [${YELLOW}WARN${RESET}] 🔔 ${YELLOW}$1${RESET}" >&2
 }
 
 log_error() {
-    echo -e "(\033[1;31m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;31mERROR\033[0m] ❕ \033[0;31m$1\033[0m" >&2
+    echo -e "(${RED}$(date '+%Y-%m-%d %H:%M:%S')${RESET}) [${RED}ERROR${RESET}] ❕ ${RED}$1${RESET}" >&2
 }
 
 log_fatal() {
-    echo -e "(\033[1;31m$(date '+%Y-%m-%d %H:%M:%S')\033[0m) [\033[1;31mFATAL\033[0m] ❌ \033[0;31m$1\033[0m" >&2
+    echo -e "(${RED}$(date '+%Y-%m-%d %H:%M:%S')${RESET}) [${RED}FATAL${RESET}] ❌ ${RED}$1${RESET}" >&2
     exit 1
 }
 
 install_tools() {
     local missing_deps=0
     if [ "$CI" != "true" ]; then
-        for tool in "${NPM_DEPS[@]}" "${SYS_DEPS[@]}"; do
+        for tool in "${JS_DEPS[@]}" "${SYS_DEPS[@]}"; do
             if ! command -v $tool &> /dev/null; then
                 log_error "Tool not found: $tool"
                 missing_deps=1
@@ -79,8 +100,8 @@ install_tools() {
         fi
     fi
 
-    log_info "Installing npm dependencies..."
-    npm install -g "${NPM_DEPS[@]}" || { echo "Failed to install npm tools"; exit 1; }
+    log_info "Installing JavaScript dependencies..."
+    yarn global add "${JS_DEPS[@]}" || { echo "Failed to install JavaScript tools"; exit 1; }
 
     log_info "Installing system dependencies..."
     sudo apt-get install -y "${SYS_DEPS[@]}" || { echo "Failed to install system tools"; exit 1; }
@@ -150,17 +171,18 @@ commit_push_and_create_pr() {
     local new_version=$3
     local version_file_path=$4
 
-    local commit_message="chore(release/$(basename $feature)): bump version from $latest_version to $new_version"
+    # Commit message and PR body (differentiate between initial release and subsequent releases)
+    local commit_message
     local body="## :robot: This is an auto-generated PR to bump the image version.
-
-**$PR_BODY_BUMP_KEY** version from \`$latest_version\` to \`$new_version\`
-
-**$PR_BODY_IMAGE_KEY:** \`$(basename $feature)\`
-
-### Bump Information:
-- **Feature:** \`$feature\`
-- **Latest Version:** \`$latest_version\`
-- **New Version:** \`$new_version\`"
+- **Feature:** \`$feature\`"
+    if [ "$new_version" = "$INITIAL_VERSION" ]; then
+        commit_message="chore(release/$(basename $feature)): initial release"
+        body="$body\n- **New Version:** \`$new_version\`"
+    else
+        commit_message="chore(release/$(basename $feature)): bump version from $latest_version to $new_version"
+        body="$body\n- **Latest Version:** \`$latest_version\`\n- **New Version:** \`$new_version\`"
+    fi
+    commit_message="$commit_message [skip ci]"
 
     # Dry run
     if [ "$DRY_RUN" = "true" ]; then
@@ -186,6 +208,7 @@ commit_push_and_create_pr() {
 
     body="$body\n$workflow_info"
 
+    # Git operations
     git config --global user.email $GH_USER_EMAIL
     git config --global user.name $GH_USERNAME
     git config pull.rebase false
@@ -199,32 +222,25 @@ commit_push_and_create_pr() {
     git add "$version_file_path" || { log_fatal "Failed to add changes"; }
     git commit -m "$commit_message" || { log_fatal "Failed to commit changes"; }
     git push origin $branch_name || { log_fatal "Failed to push changes"; }
-    if ! gh pr create \
-        --title "$commit_message" \
-        --body "$body" \
-        --head "$(git rev-parse --abbrev-ref HEAD)"; then
+
+    # PR creation
+    if ! gh pr create --title "$commit_message" --body "$body" --head "$(git rev-parse --abbrev-ref HEAD)"; then
         echo "Failed to create PR. Creating an issue instead."
-        issue_title="Failed to create PR: $commit_message"
-        existing_issue=$(gh issue list --label "$ISSUE_LABEL" --state open --search "$issue_title")
+        local issue_title="Failed to create PR: $commit_message"
+        local existing_issue=$(gh issue list --label "$ISSUE_LABEL" --state open --search "$issue_title")
         if [ -z "$existing_issue" ]; then
-            issue_body="## :x: An error occurred while trying to create a PR.
+            local issue_body="## :x: An error occurred while trying to create a PR.
 
 ### Error Details:
 Please check the logs for more information.
 
 $workflow_info"
 
-            gh issue create \
-                --title "$issue_title" \
-                --label "$ISSUE_LABEL" \
-                --body "$issue_body" || \
-                { log_fatal "Failed to create issue"; }
+            gh issue create --title "$issue_title" --label "$ISSUE_LABEL" --body "$issue_body" || { log_fatal "Failed to create issue"; }
         else
             echo "An issue with the same title already exists. Updating the existing issue instead."
-            issue_number=$(echo $existing_issue | cut -d' ' -f1)
-            gh issue comment $issue_number \
-            --body "The workflow failed again. Please check the logs.\n\nWorkflow URL: $workflow_url" || \
-            { log_fatal "Failed to update issue"; }
+            local issue_number=$(echo $existing_issue | cut -d' ' -f1)
+            gh issue comment $issue_number --body "The workflow failed again. Please check the logs.\n\nWorkflow URL: $workflow_url" || { log_fatal "Failed to update issue"; }
         fi
     fi
 }
@@ -233,51 +249,55 @@ main() {
     if [ "$DRY_RUN" = "true" ]; then
         log_warn "Running in dry run mode. No changes will be made."
     fi
-    log_info "ℹ️ Installing dependencies..."
+    log_info "Installing dependencies..."
     install_tools
-    log_info "✔ OK. Dependencies installed."
+    log_checkpoint "OK. Dependencies installed."
 
     for feature in src/*; do
         feature_name=$(basename $feature)
         echo
-        last_tag=$(git describe --tags --abbrev=0)
-        log_info "ℹ️ [\033[1;36m$feature_name\033[0m] \033[1;32m[$last_tag]\033[0m Checking for diffs..."
-        if ! git diff --name-only $last_tag..HEAD -- $feature_name | grep -q "$feature_name"; then
-            log_info "No changes detected. Skipping version bump."
+        last_tag=$(git describe --tags --abbrev=0) || { log_fatal "Failed to get the last tag"; }
+        log_info "[${CYAN}${feature_name}${RESET}] [tag: ${GREEN}${last_tag}${RESET}] Checking for diffs..."
+        if ! git diff --name-only $last_tag..HEAD -- "$feature_name" | grep -q "$feature_name"; then
+            log_checkpoint "No changes detected. Skipping version bump."
             continue
         fi
-        log_warn "OK. Changes found for $feature in the current tag."
+        log_warn "OK. Changes detected."
 
-        log_info "ℹ️ Getting version increment..."
+        log_info "Getting version increment..."
         version_increment=$(get_version_increment)
         if [ -z "$version_increment" ]; then
             log_warn "No valid commit type found. Skipping version bump."
             continue
         fi
-        log_info "✔ OK. Version increment: $version_increment"
+        log_checkpoint "OK. Version increment: $version_increment"
 
-        log_info "ℹ️ Getting latest version..."
-        latest_version=$(get_latest_version $feature)
-        log_info "✔ OK. Latest version: $latest_version"
+        log_info "Getting latest version..."
+        latest_version=$(get_latest_version "$feature") \
+            || { log_fatal "Failed to get latest version"; }
+        log_checkpoint "OK. Latest version: $latest_version"
 
-        log_info "ℹ️ Incrementing version..."
-        new_version=$(increment_version $version_increment $latest_version)
-        log_info "✔ OK. New version: $new_version"
+        log_info "Incrementing version..."
+        new_version=$(increment_version "$version_increment" "$latest_version") \
+            || { log_fatal "Failed to increment version"; }
+        log_checkpoint "OK. New version: $new_version"
 
-        log_info "ℹ️ Updating version file..."
+        log_info "Updating version file..."
         version_file_path="$feature/$VERSION_FILE_NAME"
         if [ "$CI" = "true" ]; then
-            version_file_path=${GITHUB_WORKSPACE}/$version_file_path
+            version_file_path="${GITHUB_WORKSPACE}/$version_file_path"
         fi
-        update_version_file $new_version $version_file_path
-        log_info "✔ OK. Version file updated."
+        update_version_file "$new_version" "$version_file_path" \
+            || { log_fatal "Failed to update version file"; }
+        log_checkpoint "OK. Version file updated."
 
         log_info "Committing, pushing changes and creating PR..."
-        commit_push_and_create_pr $feature $latest_version $new_version $version_file_path
-        log_info "✔ OK. Changes committed, pushed and PR created."
+        commit_push_and_create_pr "$feature" "$latest_version" "$new_version" "$version_file_path" \
+            || { log_fatal "Failed to commit, push changes and create PR"; }
+        log_checkpoint "OK. Changes committed, pushed and PR created."
     done
 }
 
-log_info "🚀 Starting version bump..."
+log_message "🚀" "Starting version bump..."
 main
-log_info "✅ Done. Version bump completed."
+log_message "✅" "Done. Version bump completed."
