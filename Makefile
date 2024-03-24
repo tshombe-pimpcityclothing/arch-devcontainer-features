@@ -49,7 +49,3 @@ test-scenarios: ## Run scenario tests for a specific feature. Argument: FEATURES
 bump-version: ## Run bump_version.sh script. Arguments: DRY_RUN.
 	chmod +x $(BUMP_VERSION_SCRIPT)
 	$(BUMP_VERSION_SCRIPT) $(DRY_RUN)
-
-.PHONY: commitlint
-commitlint:
-	git log --pretty=format:"%s" main..HEAD | while read commit; do echo $$commit | npx commitlint -V; done
