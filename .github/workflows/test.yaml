@@ -74,10 +74,30 @@ jobs:
               with:
                 validate-only: 'true'
                 base-path-to-features: './src'
-
+    
+    bump-images:
+        needs: [validate]
+        name: 'Bump Image Version'
+        runs-on: ubuntu-latest
+        permissions:
+          contents: write
+          pull-requests: write
+          issues: write
+        steps:
+          - uses: actions/checkout@v4
+            with:
+              fetch-depth: 0
+          - name: 'Install Dependencies'
+            run: yarn global add semver
+          - name: 'Run Image Version Bump'
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              GH_ACTIONS_USERNAME: ${{ vars.GH_ACTIONS_USERNAME }}
+            run: make bump-version
+        
     semantic-release:
         name: Semantic Release
-        needs: [validate]
+        needs: [bump-images]
         runs-on: ubuntu-latest
         permissions:
             contents: write
