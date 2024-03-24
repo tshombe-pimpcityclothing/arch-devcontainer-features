@@ -1,4 +1,54 @@
 {
+    "azure_dns_auto_detection_enabled": {
+        "image": "archlinux:latest",
+        "features": {
+            "docker-in-docker": {
+                "azureDnsAutoDetection": true
+            }
+        }
+    },
+    "azure_dns_auto_detection_disabled": {
+        "image": "archlinux:latest",
+        "features": {
+            "docker-in-docker": {
+                "azureDnsAutoDetection": false
+            }
+        }
+    },
+    "docker_build_no_compose": {
+        "image": "archlinux:latest",
+        "features": {
+            "docker-in-docker": {
+                "dockerDashComposeVersion": "none"
+            }
+        }
+    },
+    "docker_build": {
+        "image": "archlinux:latest",
+        "features": {
+            "docker-in-docker": {
+                "dockerDashComposeVersion": "v2"
+            }
+        }
+    },
+    "docker_buildx": {
+        "image": "archlinux:latest",
+        "features": {
+            "docker-in-docker": {
+                "installDockerBuildx": true
+            }
+        }
+    },
+    "docker_default_address_pool": {
+        "image": "archlinux:latest",
+        "remoteUser": "vscode",
+        "features": {
+            "ghcr.io/bartventer/devcontainer-features/common-utils:1": {},
+            "docker-in-docker": {
+                "dockerDefaultAddressPool": "base=192.168.0.0/16,size=24"
+            }
+        }
+    },
     "docker_with_on_create_command": {
         "image": "archlinux:latest",
         "remoteUser": "vscode",

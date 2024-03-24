@@ -6,6 +6,7 @@
 #
 # Docs: https://github.com/bartventer/devcontainer-features/tree/main/src/git/README.md
 # Maintainer: Bart Venter <https://github.com/bartventer>
+set -e
 
 # shellcheck disable=SC2034
 DOCKER_VERSION="${VERSION:-"latest"}" # The Docker Engine + CLI should match in version
@@ -15,7 +16,7 @@ DOCKER_DEFAULT_ADDRESS_POOL="${DOCKERDEFAULTADDRESSPOOL:-""}"
 USERNAME="${USERNAME:-"${_REMOTE_USER:-"automatic"}"}"
 INSTALL_DOCKER_BUILDX="${INSTALLDOCKERBUILDX:-"true"}"
 INSTALL_DOCKER_COMPOSE_SWITCH="${INSTALLDOCKERCOMPOSESWITCH:-"true"}"
-MICROSOFT_GPG_KEYS_URI="https://packages.microsoft.com/keys/microsoft.asc"
+
 # Determine architecture
 architecture=$(uname -m)
 if [ "${architecture}" = "x86_64" ]; then
@@ -38,9 +39,6 @@ fi
 # Source the utility script
 # shellcheck disable=SC1090
 . "$UTIL_SCRIPT"
-
-# Default: Exit on any failure.
-set -e
 
 # Setup STDERR.
 err() {
@@ -121,7 +119,6 @@ fi
 
 # Dependencies
 check_and_install_packages curl ca-certificates pigz iptables gnupg wget jq git docker
-
 echo "Finished installing docker!"
 
 # If 'docker-compose' command is to be included
@@ -130,9 +127,8 @@ if [ "${DOCKER_DASH_COMPOSE_VERSION}" != "none" ]; then
     check_and_install_packages docker-compose || echo "(*) Package docker-compose (Docker Compose v2) not available for OS ${ID}. Skipping."
 
     echo "Changing permissions for docker-compose..."
-    chmod +x /usr/bin/docker-compose
+    chmod +x "${docker_compose_path}"
 fi
-
 
 # Install docker-compose switch if not already installed - https://github.com/docker/compose-switch#manual-installation
 if [ "${INSTALL_DOCKER_COMPOSE_SWITCH}" = "true" ] && ! type compose-switch > /dev/null 2>&1; then
@@ -175,11 +171,11 @@ fi
 usermod -aG docker "${USERNAME}"
 
 # Install docker-buildx if not already installed
-docker_home="/usr/lib/docker"
-cli_plugins_dir="${docker_home}/cli-plugins"
 if [ "${INSTALL_DOCKER_BUILDX}" = "true" ]; then
     check_and_install_packages docker-buildx
 
+    docker_home="/usr/lib/docker"
+    cli_plugins_dir="${docker_home}/cli-plugins"
     mkdir -p "${cli_plugins_dir}"
     buildx_path="${cli_plugins_dir}/docker-buildx"
     chmod +x "${buildx_path}"
@@ -340,4 +336,4 @@ EOF
 chmod +x /usr/local/share/docker-init.sh
 chown "${USERNAME}":root /usr/local/share/docker-init.sh
 
-echo 'docker-in-docker-arch script has completed!'
+echo 'Done. Docker-in-Docker installed successfully!'
