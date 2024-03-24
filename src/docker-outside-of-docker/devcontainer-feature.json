@@ -1,6 +1,6 @@
 {
     "id": "docker-outside-of-docker",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "name": "Docker (docker-outside-of-docker)",
     "documentationURL": "https://github.com/bartventer/devcontainer-features/tree/main/src/docker-outside-of-docker",
     "licenseURL": "https://github.com/bartventer/devcontainer-features/blob/main/LICENSE",
