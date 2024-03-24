@@ -19,24 +19,25 @@
 #-----------------------------------------------------------------------------------------------------------------
 
 # Exit on error
-set -e
+set -euo pipefail
 
 ARCH_DIR_PERMS_CHECKED="${ARCH_DIR_PERMS_CHECKED:-false}"
 ARCH_KEYRING_CHECKED="${ARCH_KEYRING_CHECKED:-false}"
+ARCH_VERBOSE_LOGGING="${ARCH_VERBOSE_LOGGING:-false}"
 
 # Echo message
-color1='\033[1;36m' # Light Cyan
-color2='\033[1;34m' # Light Blue
-no_color='\033[0m' # No color
+CYAN='\033[1;36m'
+BLUE='\033[1;34m'
+NC='\033[0m' # No color
 echo_msg() {
     message=$1
     script_path=$(realpath "$0")
 
     if [ "$ARCH_VERBOSE_LOGGING" = "true" ]; then
         timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-        printf "[%b%s%b] [%b%s%b] %s\n" "$color1" "$script_path" "$no_color" "$color2" "$timestamp" "$no_color" "$message"
+        printf "[%b%s%b] [%b%s%b] %s\n" "$CYAN" "$script_path" "$NC" "$BLUE" "$timestamp" "$NC" "$message"
     else
-        printf "[%b%s%b] %s\n" "$color1" "$script_path" "$no_color" "$message"
+        printf "[%b%s%b] %s\n" "$CYAN" "$script_path" "$NC" "$message"
     fi
 }
 
