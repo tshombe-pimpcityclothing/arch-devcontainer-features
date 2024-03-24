@@ -3,7 +3,6 @@ on:
   push:
     branches: ['main']
     tags: ['v[0-9]+.[0-9]+.[0-9]+']
-    paths: ['src/**']
   workflow_dispatch:
 
 jobs:
