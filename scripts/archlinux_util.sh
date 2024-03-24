@@ -19,7 +19,7 @@
 #-----------------------------------------------------------------------------------------------------------------
 
 # Exit on error
-set -euo pipefail
+set -e
 
 ARCH_DIR_PERMS_CHECKED="${ARCH_DIR_PERMS_CHECKED:-false}"
 ARCH_KEYRING_CHECKED="${ARCH_KEYRING_CHECKED:-false}"
