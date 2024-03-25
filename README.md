@@ -90,6 +90,8 @@ Docker in Docker installs Docker and Docker Compose in a Docker container. This 
 }
 ```
 
+Additional options can be found in the [feature documentation](src/docker-in-docker/README.md).
+
 ### docker-outside-of-docker
 
 Docker outside of Docker re-uses the host docker socket, adding the Docker CLI to a container. This feature invokes a script to enable using a forwarded Docker socket within a container to run Docker commands.
