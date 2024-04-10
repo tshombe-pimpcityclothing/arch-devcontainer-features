@@ -71,7 +71,9 @@ AWS CLI installs the AWS CLI along with needed dependencies. Useful for base Doc
 ```json
 "features": {
     "ghcr.io/bartventer/arch-devcontainer-features/aws-cli:latest": {
-        "version": "latest"
+        "version": "latest",
+        "installSam": "standalone",
+        "samVersion": "latest",
     }
 }
 ```
