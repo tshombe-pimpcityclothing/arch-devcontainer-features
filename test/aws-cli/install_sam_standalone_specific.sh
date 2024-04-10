@@ -6,7 +6,7 @@ set -e
 source dev-container-features-test-lib
 
 # Definition specific tests
-check "version" aws --version
+check "sam version" sam --version | grep -q "1.113.0"
 
 # Report result
 reportResults
