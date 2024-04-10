@@ -15,6 +15,25 @@
             ],
             "default": "latest",
             "description": "Select or enter an AWS CLI version."
+        },
+        "installSam": {
+            "type": "string",
+            "enum": [
+                "none",
+                "python",
+                "standalone"
+            ],
+            "default": "none",
+            "description": "Install the AWS SAM CLI (https://docs.aws.amazon.com/serverless-application-model/) via the specified method."
+        },
+        "samVersion": {
+            "type": "string",
+            "default": "latest",
+            "description": "SAM CLI version (https://github.com/aws/aws-sam-cli/releases). Only applicable if `installSam` is set to `standalone`.",
+            "proposals": [
+                "latest",
+                "v1.114.0"
+            ]
         }
     },
     "customizations": {
