@@ -224,6 +224,9 @@ commit_push_and_create_pr() {
     git show-ref --verify --quiet refs/heads/$branch_name
     if [ $? -eq 0 ]; then
         git checkout $branch_name
+        git stash || { log_fatal "Failed to stash changes"; }
+        git pull origin $branch_name || { log_fatal "Failed to pull changes"; }
+        git stash pop || { log_fatal "Failed to pop stash"; }
     else
         git checkout -b $branch_name
     fi
