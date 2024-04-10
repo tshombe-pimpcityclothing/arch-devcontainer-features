@@ -1,4 +1,5 @@
 <!-- markdownlint-disable MD024 -->
+
 # Dev Container Features
 
 [![Release](https://img.shields.io/github/release/bartventer/devcontainer-features.svg)](https://github.com/bartventer/devcontainer-features/releases/latest)
@@ -26,14 +27,15 @@ This repository contains a _collection_ of features curated by [@bartventer](htt
 
 ## Table of Contents
 
-- [Collected Features](#collected-features)
-  - [common-utils](#common-utils)
-  - [aws-cli](#aws-cli)
-  - [docker-in-docker](#docker-in-docker)
-  - [docker-outside-of-docker](#docker-outside-of-docker)
-- [Contributing](#contributing)
-- [License](#license)
-- [Trademarks](#trademarks)
+-   [Collected Features](#collected-features)
+    -   [common-utils](#common-utils)
+    -   [aws-cli](#aws-cli)
+    -   [docker-in-docker](#docker-in-docker)
+    -   [docker-outside-of-docker](#docker-outside-of-docker)
+    -   [terraform](#terraform)
+-   [Contributing](#contributing)
+-   [License](#license)
+-   [Trademarks](#trademarks)
 
 ## Collected Features
 
@@ -68,7 +70,7 @@ AWS CLI installs the AWS CLI along with needed dependencies. Useful for base Doc
 
 ```json
 "features": {
-    "ghcr.io/bartventer/devcontainer-features/aws-cli:1": {
+    "ghcr.io/bartventer/devcontainer-features/aws-cli:latest": {
         "version": "latest"
     }
 }
@@ -84,7 +86,7 @@ Docker in Docker installs Docker and Docker Compose in a Docker container. This 
 
 ```json
 "features": {
-    "ghcr.io/bartventer/devcontainer-features/docker-in-docker:1": {
+    "ghcr.io/bartventer/devcontainer-features/docker-in-docker:latest": {
         "version": "latest"
     }
 }
@@ -100,7 +102,7 @@ Docker outside of Docker re-uses the host docker socket, adding the Docker CLI t
 
 ```json
 "features": {
-    "ghcr.io/bartventer/devcontainer-features/docker-outside-of-docker:0.1.0": {
+    "ghcr.io/bartventer/devcontainer-features/docker-outside-of-docker:latest": {
         "version": "latest",
         "dockerDashComposeVersion": "v2",
         "installDockerBuildx": true,
@@ -110,6 +112,26 @@ Docker outside of Docker re-uses the host docker socket, adding the Docker CLI t
 ```
 
 Additional options can be found in the [feature documentation](src/docker-outside-of-docker/README.md).
+
+### terraform
+
+Terraform installs the Terraform CLI and optionally Terragrunt and TFLint. Auto-detects the latest version and installs needed dependencies.
+
+#### usage
+
+```json
+"features": {
+    "ghcr.io/bartventer/devcontainer-features/terraform:latest": {
+        "installTerragrunt": true,
+        "installTflint": true,
+        "installSentinel": true,
+        "installTFsec": true,
+        "installTerraformDocs": true
+    }
+}
+```
+
+Additional options can be found in the [feature documentation](src/terraform/README.md).
 
 ## Contributing
 
