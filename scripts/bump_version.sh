@@ -215,8 +215,6 @@ commit_push_and_create_pr() {
 - **GitHub Runner OS:** \`$RUNNER_OS\`
 - **GitHub Workflow URL:** [$workflow_url]($workflow_url)"
 
-    body="$body\n$workflow_info"
-
     # Git operations
     git config --global user.email $GH_USER_EMAIL
     git config --global user.name $GH_USERNAME
@@ -233,6 +231,7 @@ commit_push_and_create_pr() {
     git push origin $branch_name || { log_fatal "Failed to push changes"; }
 
     # PR creation
+    body=$(printf '%s\n%s' "$body" "$workflow_info")
     if ! gh pr create --title "$commit_message" --body "$body" --head "$(git rev-parse --abbrev-ref HEAD)"; then
         echo "Failed to create PR. Creating an issue instead."
         local issue_title="Failed to create PR: $commit_message"
@@ -244,7 +243,7 @@ commit_push_and_create_pr() {
 Please check the logs for more information.
 
 $workflow_info"
-
+            issue_body=$(printf '%s' "$issue_body")
             gh issue create --title "$issue_title" --label "$ISSUE_LABEL" --body "$issue_body" || { log_fatal "Failed to create issue"; }
         else
             echo "An issue with the same title already exists. Updating the existing issue instead."
