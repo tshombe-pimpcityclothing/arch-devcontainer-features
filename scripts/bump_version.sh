@@ -222,16 +222,16 @@ commit_push_and_create_pr() {
     git config --global user.name $GH_USERNAME
     git config pull.rebase false
     local branch_name="bump-$(basename $feature)"
-    git show-ref --verify --quiet refs/heads/$branch_name
-    git stash || { log_fatal "Failed to stash changes"; } # Stash changes before checking the branch
-    if [ $? -eq 0 ]; then
-        git checkout $branch_name
-        git fetch origin $branch_name || { log_fatal "Failed to fetch changes"; }
-        git reset --hard origin/$branch_name || { log_fatal "Failed to reset to remote branch"; }
-    else
-        git checkout -b $branch_name
-    fi
-    git stash pop || { log_fatal "Failed to pop stash"; } # Pop the stash after updating or creating the branch
+    git fetch origin main:main || { log_fatal "Failed to fetch main"; }
+    git checkout -B $branch_name main || { log_fatal "Failed to checkout branch"; }
+    set +x
+
+    log_info "Updating version file..."
+    update_version_file "$new_version" "$version_file_path" || { log_fatal "Failed to update version file"; }
+    log_checkpoint "OK. Version file updated."
+
+    # Git operations
+    set -x
     git add "$version_file_path" || { log_fatal "Failed to add changes"; }
     git commit -m "$commit_message" || { log_fatal "Failed to commit changes"; }
     git push origin $branch_name || { log_fatal "Failed to push changes"; }
@@ -297,16 +297,11 @@ main() {
             { log_fatal "Failed to increment version"; }
         log_checkpoint "OK. New version: $new_version"
 
-        log_info "Updating version file..."
+        log_info "Committing, pushing changes and creating PR..."
         version_file_path="$feature/$VERSION_FILE_NAME"
         if [ "$CI" = "true" ]; then
             version_file_path="${GITHUB_WORKSPACE}/$version_file_path"
         fi
-        update_version_file "$new_version" "$version_file_path" ||
-            { log_fatal "Failed to update version file"; }
-        log_checkpoint "OK. Version file updated."
-
-        log_info "Committing, pushing changes and creating PR..."
         commit_push_and_create_pr "$feature" "$latest_version" "$new_version" "$version_file_path" ||
             { log_fatal "Failed to commit, push changes and create PR"; }
         log_checkpoint "OK. Changes committed, pushed and PR created."
