@@ -1,2 +1,3 @@
 # Local development
 *.bak
+__test.sh
