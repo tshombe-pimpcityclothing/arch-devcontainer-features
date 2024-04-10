@@ -1,0 +1,66 @@
+{
+    "install_sentinel": {
+        "image": "archlinux:latest",
+        "features": {
+            "terraform": {
+                "installSentinel": true
+            }
+        }
+    },
+    "install_terraform_docs": {
+        "image": "archlinux:latest",
+        "features": {
+            "terraform": {
+                "installTerraformDocs": true
+            }
+        }
+    },
+    "install_tfsec": {
+        "image": "archlinux:latest",
+        "features": {
+            "terraform": {
+                "installTFsec": true
+            }
+        }
+    },
+    "older_tflint": {
+        "image": "archlinux:latest",
+        "features": {
+            "terraform": {
+                "tflint": "0.40.0"
+            }
+        }
+    },
+    "terraform_docs_fallback_test": {
+        "image": "archlinux:latest",
+        "features": {
+            "terraform": {
+                "installTerraformDocs": true
+            }
+        }
+    },
+    "terragrunt_skip": {
+        "image": "archlinux:latest",
+        "features": {
+            "terraform": {
+                "installTerragrunt": false
+            }
+        }
+    },
+    "tflint_fallback_test": {
+        "image": "archlinux:latest",
+        "features": {
+            "terraform": {
+                "tflint": "latest"
+            }
+        }
+    },
+    "tfsec_fallback_test": {
+        "image": "archlinux:latest",
+        "features": {
+            "terraform": {
+                "installTFsec": true
+            }
+        }
+    }
+}
