@@ -7,8 +7,8 @@
 # Docs: https://github.com/bartventer/devcontainer-features/tree/main/src/git/README.md
 # Maintainer: Bart Venter <https://github.com/bartventer>
 #
-# This script will: 
-# 
+# This script will:
+#
 # 1. Check if the script is running in dry run mode. If so, it will log a warning and make no changes.
 # 2. Install the necessary tools (npm and system dependencies[git, curl, jq]).
 # 3. Iterate over each feature in the src directory.
@@ -20,9 +20,9 @@
 #    - Increment the version.
 #    - Update the version file.
 #    - Commit the changes, push them, and create a PR.
-# 
-# You can run this script manually or set up a GitHub Action to run it automatically. 
-# Here is an example of a GitHub Action that runs the script: 
+#
+# You can run this script manually or set up a GitHub Action to run it automatically.
+# Here is an example of a GitHub Action that runs the script:
 # Path: .github/workflows/bump-version.yml
 #-----------------------------------------------------------------------------------------------------------------
 
@@ -68,7 +68,6 @@ log_checkpoint() {
     log_message "✔" "$1"
 }
 
-
 log_warn() {
     echo -e "(${YELLOW}$(date '+%Y-%m-%d %H:%M:%S')${RESET}) [${YELLOW}WARN${RESET}] 🔔 ${YELLOW}$1${RESET}" >&2
 }
@@ -86,11 +85,11 @@ install_tools() {
     local missing_deps=0
     if [ "$CI" != "true" ]; then
         for tool in "${JS_DEPS[@]}" "${SYS_DEPS[@]}"; do
-            if ! command -v $tool &> /dev/null; then
+            if ! command -v $tool &>/dev/null; then
                 log_error "Tool not found: $tool"
                 missing_deps=1
                 case $tool in
-                    "gh") log_error "Install GitHub CLI: see https://github.com/cli/cli/blob/trunk/docs/install_linux.md";;
+                "gh") log_error "Install GitHub CLI: see https://github.com/cli/cli/blob/trunk/docs/install_linux.md" ;;
                 esac
             fi
         done
@@ -102,10 +101,16 @@ install_tools() {
     fi
 
     log_info "Installing JavaScript dependencies..."
-    yarn global add "${JS_DEPS[@]}" || { echo "Failed to install JavaScript tools"; exit 1; }
+    yarn global add "${JS_DEPS[@]}" || {
+        echo "Failed to install JavaScript tools"
+        exit 1
+    }
 
     log_info "Installing system dependencies..."
-    sudo apt-get install -y "${SYS_DEPS[@]}" || { echo "Failed to install system tools"; exit 1; }
+    sudo apt-get install -y "${SYS_DEPS[@]}" || {
+        echo "Failed to install system tools"
+        exit 1
+    }
 }
 
 get_version_increment() {
@@ -143,7 +148,10 @@ increment_version() {
     if [ "$latest_version" = "$DEFAULT_VERSION" ]; then
         echo $INITIAL_VERSION
     else
-        semver -i $version_increment $latest_version || { echo "Failed to increment version"; exit 1; }
+        semver -i $version_increment $latest_version || {
+            echo "Failed to increment version"
+            exit 1
+        }
     fi
 }
 
@@ -155,9 +163,9 @@ update_version_file() {
     fi
     log_info "==> Version file path: $version_file_path"
     if [ "$CI" = "true" ]; then
-        jq --arg new_version "$new_version" '.version |= $new_version' $version_file_path > "$version_file_path.tmp" && \
-            mv "$version_file_path.tmp" $version_file_path \
-            || { log_fatal "Failed to update version file"; }
+        jq --arg new_version "$new_version" '.version |= $new_version' $version_file_path >"$version_file_path.tmp" &&
+            mv "$version_file_path.tmp" $version_file_path ||
+            { log_fatal "Failed to update version file"; }
     else
         log_warn "Dry run enabled. Redirecting output to stdout. \
                     \n :: feature: $feature \
@@ -265,8 +273,8 @@ main() {
         log_warn "OK. Changes detected."
 
         log_info "Getting version increment..."
-        version_increment=$(get_version_increment "$feature_name" "$current_tag") \
-            || { log_fatal "Failed to get version increment"; }
+        version_increment=$(get_version_increment "$feature_name" "$current_tag") ||
+            { log_fatal "Failed to get version increment"; }
         if [ -z "$version_increment" ]; then
             log_checkpoint "No valid commit type found. Skipping version bump."
             continue
@@ -274,13 +282,13 @@ main() {
         log_checkpoint "OK. Version increment: $version_increment"
 
         log_info "Getting latest version..."
-        latest_version=$(get_latest_version "$feature") \
-            || { log_fatal "Failed to get latest version"; }
+        latest_version=$(get_latest_version "$feature") ||
+            { log_fatal "Failed to get latest version"; }
         log_checkpoint "OK. Latest version: $latest_version"
 
         log_info "Incrementing version..."
-        new_version=$(increment_version "$version_increment" "$latest_version") \
-            || { log_fatal "Failed to increment version"; }
+        new_version=$(increment_version "$version_increment" "$latest_version") ||
+            { log_fatal "Failed to increment version"; }
         log_checkpoint "OK. New version: $new_version"
 
         log_info "Updating version file..."
@@ -288,13 +296,13 @@ main() {
         if [ "$CI" = "true" ]; then
             version_file_path="${GITHUB_WORKSPACE}/$version_file_path"
         fi
-        update_version_file "$new_version" "$version_file_path" \
-            || { log_fatal "Failed to update version file"; }
+        update_version_file "$new_version" "$version_file_path" ||
+            { log_fatal "Failed to update version file"; }
         log_checkpoint "OK. Version file updated."
 
         log_info "Committing, pushing changes and creating PR..."
-        commit_push_and_create_pr "$feature" "$latest_version" "$new_version" "$version_file_path" \
-            || { log_fatal "Failed to commit, push changes and create PR"; }
+        commit_push_and_create_pr "$feature" "$latest_version" "$new_version" "$version_file_path" ||
+            { log_fatal "Failed to commit, push changes and create PR"; }
         log_checkpoint "OK. Changes committed, pushed and PR created."
     done
 }
