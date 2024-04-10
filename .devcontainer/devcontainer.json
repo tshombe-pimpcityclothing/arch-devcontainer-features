@@ -1,6 +1,6 @@
 {
     "name": "Devcontainer-Features",
-    "image": "debian:bullseye",
+    "image": "archlinux:latest",
     "customizations": {
         "vscode": {
             "settings": {
@@ -14,20 +14,17 @@
                 ]
             },
             "extensions": [
-                "mads-hartmann.bash-ide-vscode",
-                "GitHub.copilot",
-                "GitHub.copilot-chat",
                 "github.vscode-github-actions"
             ]
         }
     },
     "features": {
-        "ghcr.io/devcontainers/features/common-utils:2": {
+        "ghcr.io/bartventer/devcontainer-features/common-utils:latest": {
             "configureZshAsDefaultShell": true,
-            "installOhMyZshConfig": false
+            "installOhMyZshConfig": false,
+            "additionalPackages": "nodejs npm yarn git jq make"
         },
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-        "ghcr.io/devcontainers/features/node:1": {}
+        "ghcr.io/bartventer/devcontainer-features/docker-in-docker:latest": {}
     },
     "postCreateCommand": "yarn global add @devcontainers/cli semver",
     "remoteUser": "vscode"
