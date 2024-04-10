@@ -134,7 +134,6 @@ install_sam_standalone() {
     # Clean up
     echo ":: Cleaning up..."
     rm -rf "${tmp_dir}"
-    set +x
 }
 
 install_sam_python() {
