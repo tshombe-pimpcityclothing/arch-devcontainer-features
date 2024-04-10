@@ -163,14 +163,14 @@ update_version_file() {
     fi
     log_info "==> Version file path: $version_file_path"
     if [ "$CI" = "true" ]; then
-        jq --arg new_version "$new_version" '.version |= $new_version' $version_file_path >"$version_file_path.tmp" &&
+        jq --indent 4 --arg new_version "$new_version" '.version |= $new_version' $version_file_path >"$version_file_path.tmp" &&
             mv "$version_file_path.tmp" $version_file_path ||
             { log_fatal "Failed to update version file"; }
     else
         log_warn "Dry run enabled. Redirecting output to stdout. \
                     \n :: feature: $feature \
                     \n :: new_version: $new_version"
-        jq --arg new_version "$new_version" '.version |= $new_version' $version_file_path
+        jq --indent 4 --arg new_version "$new_version" '.version |= $new_version' $version_file_path
     fi
 }
 
