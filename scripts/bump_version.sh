@@ -186,7 +186,6 @@ commit_push_and_create_pr() {
 - **Feature:** \`$(basename $feature)\`"
     if [ "$new_version" = "$INITIAL_VERSION" ]; then
         commit_message="chore(release/$(basename $feature)): initial release"
-        # body="$body\n- **Version:** \`$new_version\`"
         body=$(printf "%s\n- **Version:** \`%s\`" "$body" "$new_version")
     else
         commit_message="chore(release/$(basename $feature)): bump version from $latest_version to $new_version"
@@ -222,7 +221,6 @@ commit_push_and_create_pr() {
     git config --global user.name $GH_USERNAME
     git config pull.rebase false
     local branch_name="bump-$(basename $feature)"
-    git fetch origin main:main || { log_fatal "Failed to fetch main"; }
     git checkout -B $branch_name main || { log_fatal "Failed to checkout branch"; }
     set +x
 
@@ -237,9 +235,17 @@ commit_push_and_create_pr() {
     git push origin $branch_name || { log_fatal "Failed to push changes"; }
     set +x
 
+    # Check if there's an open PR for the branch and close it
+    existing_pr=$(gh pr list --base $branch_name --state open)
+    if [ -n "$existing_pr" ]; then
+        pr_number=$(echo $existing_pr | cut -d' ' -f1)
+        gh pr close $pr_number --delete-branch || { log_fatal "Failed to close existing PR"; }
+    fi
+
     # PR creation
     body=$(printf '%s\n%s' "$body" "$workflow_info")
-    if ! gh pr create --title "$commit_message" --body "$body" --head "$(git rev-parse --abbrev-ref HEAD)"; then
+    if ! new_pr=$(gh pr create --title "$commit_message" --body "$body" --head "$(git rev-parse --abbrev-ref HEAD)"); then
+        # Failure: Create an issue
         echo "Failed to create PR. Creating an issue instead."
         local issue_title="Failed to create PR: $commit_message"
         local existing_issue=$(gh issue list --label "$ISSUE_LABEL" --state open --search "$issue_title")
@@ -256,6 +262,12 @@ $workflow_info"
             echo "An issue with the same title already exists. Updating the existing issue instead."
             local issue_number=$(echo $existing_issue | cut -d' ' -f1)
             gh issue comment $issue_number --body "The workflow failed again. Please check the logs.\n\nWorkflow URL: $workflow_url" || { log_fatal "Failed to update issue"; }
+        fi
+    else
+        # Success: Comment on the old PR if it exists
+        new_pr_number=$(echo $new_pr | cut -d' ' -f1)
+        if [ -n "$existing_pr" ]; then
+            gh pr comment $pr_number --body "This PR has been replaced by PR #$new_pr_number." || { log_fatal "Failed to comment on closed PR"; }
         fi
     fi
 }
