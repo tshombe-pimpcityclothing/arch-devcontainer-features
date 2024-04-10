@@ -225,7 +225,8 @@ commit_push_and_create_pr() {
     if [ $? -eq 0 ]; then
         git checkout $branch_name
         git stash || { log_fatal "Failed to stash changes"; }
-        git pull origin $branch_name || { log_fatal "Failed to pull changes"; }
+        git fetch origin $branch_name || { log_fatal "Failed to fetch changes"; }
+        git reset --hard origin/$branch_name || { log_fatal "Failed to reset to remote branch"; }
         git stash pop || { log_fatal "Failed to pop stash"; }
     else
         git checkout -b $branch_name
