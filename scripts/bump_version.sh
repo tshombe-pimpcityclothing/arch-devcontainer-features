@@ -223,16 +223,15 @@ commit_push_and_create_pr() {
     git config pull.rebase false
     local branch_name="bump-$(basename $feature)"
     git show-ref --verify --quiet refs/heads/$branch_name
+    git stash || { log_fatal "Failed to stash changes"; } # Stash changes before checking the branch
     if [ $? -eq 0 ]; then
         git checkout $branch_name
-        git stash || { log_fatal "Failed to stash changes"; }
         git fetch origin $branch_name || { log_fatal "Failed to fetch changes"; }
         git reset --hard origin/$branch_name || { log_fatal "Failed to reset to remote branch"; }
-        git pull origin $branch_name || { log_fatal "Failed to pull changes"; }
-        git stash pop || { log_fatal "Failed to pop stash"; }
     else
         git checkout -b $branch_name
     fi
+    git stash pop || { log_fatal "Failed to pop stash"; } # Pop the stash after updating or creating the branch
     git add "$version_file_path" || { log_fatal "Failed to add changes"; }
     git commit -m "$commit_message" || { log_fatal "Failed to commit changes"; }
     git push origin $branch_name || { log_fatal "Failed to push changes"; }
