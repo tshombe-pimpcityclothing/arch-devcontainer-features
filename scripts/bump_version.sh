@@ -217,6 +217,7 @@ commit_push_and_create_pr() {
 - **GitHub Workflow URL:** [$workflow_url]($workflow_url)"
 
     # Git operations
+    set -x
     git config --global user.email $GH_USER_EMAIL
     git config --global user.name $GH_USERNAME
     git config pull.rebase false
@@ -227,6 +228,7 @@ commit_push_and_create_pr() {
         git stash || { log_fatal "Failed to stash changes"; }
         git fetch origin $branch_name || { log_fatal "Failed to fetch changes"; }
         git reset --hard origin/$branch_name || { log_fatal "Failed to reset to remote branch"; }
+        git pull origin $branch_name || { log_fatal "Failed to pull changes"; }
         git stash pop || { log_fatal "Failed to pop stash"; }
     else
         git checkout -b $branch_name
@@ -234,6 +236,7 @@ commit_push_and_create_pr() {
     git add "$version_file_path" || { log_fatal "Failed to add changes"; }
     git commit -m "$commit_message" || { log_fatal "Failed to commit changes"; }
     git push origin $branch_name || { log_fatal "Failed to push changes"; }
+    set +x
 
     # PR creation
     body=$(printf '%s\n%s' "$body" "$workflow_info")
