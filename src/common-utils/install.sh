@@ -1,10 +1,10 @@
 #!/bin/sh
 #-----------------------------------------------------------------------------------------------------------------
 # Copyright (c) Bart Venter.
-# Licensed under the MIT License. See https://github.com/bartventer/devcontainer-features for license information.
+# Licensed under the MIT License. See https://github.com/bartventer/arch-devcontainer-features for license information.
 #-----------------------------------------------------------------------------------------------------------------
 #
-# Docs: https://github.com/bartventer/devcontainer-features/tree/main/src/common-utils/README.md
+# Docs: https://github.com/bartventer/arch-devcontainer-features/tree/main/src/common-utils/README.md
 # Maintainer: Bart Venter <https://github.com/bartventer>
 
 set -e
@@ -31,7 +31,6 @@ USER_GID="${GID:-"automatic"}"
 # shellcheck disable=SC2034
 MARKER_FILE="/usr/local/etc/vscode-dev-containers/common"
 
-
 # ***********************
 # ** Utility functions **
 # ***********************
@@ -41,7 +40,7 @@ UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
 # Check if the utility script exists
 if [ ! -f "$UTIL_SCRIPT" ]; then
     echo "Cloning archlinux_util.sh from GitHub to $UTIL_SCRIPT"
-    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/devcontainer-features/main/scripts/archlinux_util.sh
+    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/arch-devcontainer-features/main/scripts/archlinux_util.sh
     chmod +x "$UTIL_SCRIPT"
 fi
 

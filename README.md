@@ -2,10 +2,10 @@
 
 # Dev Container Features
 
-[![Release](https://img.shields.io/github/release/bartventer/devcontainer-features.svg)](https://github.com/bartventer/devcontainer-features/releases/latest)
-[![Release Workflow](https://github.com/bartventer/devcontainer-features/actions/workflows/release.yaml/badge.svg)](https://github.com/bartventer/devcontainer-features/actions/workflows/release.yaml)
-[![Test Workflow](https://github.com/bartventer/devcontainer-features/actions/workflows/test.yaml/badge.svg)](https://github.com/bartventer/devcontainer-features/actions/workflows/test.yaml)
-[![License](https://img.shields.io/github/license/bartventer/devcontainer-features.svg)](LICENSE)
+[![Release](https://img.shields.io/github/release/bartventer/arch-devcontainer-features.svg)](https://github.com/bartventer/arch-devcontainer-features/releases/latest)
+[![Release Workflow](https://github.com/bartventer/arch-devcontainer-features/actions/workflows/release.yaml/badge.svg)](https://github.com/bartventer/arch-devcontainer-features/actions/workflows/release.yaml)
+[![Test Workflow](https://github.com/bartventer/arch-devcontainer-features/actions/workflows/test.yaml/badge.svg)](https://github.com/bartventer/arch-devcontainer-features/actions/workflows/test.yaml)
+[![License](https://img.shields.io/github/license/bartventer/arch-devcontainer-features.svg)](LICENSE)
 
 <!-- markdownlint-disable MD033 -->
 <table style="width: 100%; border-style: none;">
@@ -47,7 +47,7 @@ Common Utilities installs a set of common command line utilities, Oh My Zsh!, an
 
 ```json
 "features": {
-    "ghcr.io/bartventer/devcontainer-features/common-utils:1": {
+    "ghcr.io/bartventer/arch-devcontainer-features/common-utils:1": {
         "installZsh": true,
         "additionalPackages": "go nodejs npm",
         "configureZshAsDefaultShell": false,
@@ -70,7 +70,7 @@ AWS CLI installs the AWS CLI along with needed dependencies. Useful for base Doc
 
 ```json
 "features": {
-    "ghcr.io/bartventer/devcontainer-features/aws-cli:latest": {
+    "ghcr.io/bartventer/arch-devcontainer-features/aws-cli:latest": {
         "version": "latest"
     }
 }
@@ -86,7 +86,7 @@ Docker in Docker installs Docker and Docker Compose in a Docker container. This 
 
 ```json
 "features": {
-    "ghcr.io/bartventer/devcontainer-features/docker-in-docker:latest": {
+    "ghcr.io/bartventer/arch-devcontainer-features/docker-in-docker:latest": {
         "version": "latest"
     }
 }
@@ -102,7 +102,7 @@ Docker outside of Docker re-uses the host docker socket, adding the Docker CLI t
 
 ```json
 "features": {
-    "ghcr.io/bartventer/devcontainer-features/docker-outside-of-docker:latest": {
+    "ghcr.io/bartventer/arch-devcontainer-features/docker-outside-of-docker:latest": {
         "version": "latest",
         "dockerDashComposeVersion": "v2",
         "installDockerBuildx": true,
@@ -121,7 +121,7 @@ Terraform installs the Terraform CLI and optionally Terragrunt and TFLint. Auto-
 
 ```json
 "features": {
-    "ghcr.io/bartventer/devcontainer-features/terraform:latest": {
+    "ghcr.io/bartventer/arch-devcontainer-features/terraform:latest": {
         "installTerragrunt": true,
         "installTflint": true,
         "installSentinel": true,

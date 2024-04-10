@@ -1,10 +1,10 @@
 #!/bin/bash
 #-----------------------------------------------------------------------------------------------------------------
 # Copyright (c) Bart Venter.
-# Licensed under the MIT License. See https://github.com/bartventer/devcontainer-features for license information.
+# Licensed under the MIT License. See https://github.com/bartventer/arch-devcontainer-features for license information.
 #-----------------------------------------------------------------------------------------------------------------
 #
-# Docs: https://github.com/bartventer/devcontainer-features/tree/main/src/common-utils/README.md
+# Docs: https://github.com/bartventer/arch-devcontainer-features/tree/main/src/common-utils/README.md
 # Maintainer: Bart Venter <https://github.com/bartventer>
 
 set -e
@@ -20,7 +20,7 @@ USER_GID="${USERGID:-"automatic"}"
 
 MARKER_FILE="/usr/local/etc/vscode-dev-containers/common"
 
-FEATURE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+FEATURE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ***********************
 # ** Utility functions **
@@ -31,7 +31,7 @@ UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
 # Check if the utility script exists
 if [ ! -f "$UTIL_SCRIPT" ]; then
     echo "Cloning archlinux_util.sh from GitHub to $UTIL_SCRIPT"
-    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/devcontainer-features/main/scripts/archlinux_util.sh
+    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/arch-devcontainer-features/main/scripts/archlinux_util.sh
     chmod +x "$UTIL_SCRIPT"
 fi
 
@@ -44,54 +44,54 @@ install_arch_packages() {
     local package_list=()
     if [ "${PACKAGES_ALREADY_INSTALLED}" != "true" ]; then
         package_list=(
-        "openssh"
-        "gnupg"
-        "iproute2"
-        "procps-ng"
-        "lsof"
-        "htop"
-        "inetutils"
-        "psmisc"
-        "curl"
-        "tree"
-        "wget"
-        "rsync"
-        "ca-certificates"
-        "unzip"
-        "bzip2"
-        "xz"
-        "zip"
-        "nano"
-        "vim"
-        "less"
-        "jq"
-        "lsb-release"
-        "dialog"
-        "gcc-libs"
-        "krb5"
-        "icu"
-        "lttng-ust"
-        "zlib"
-        "sudo"
-        "ncdu"
-        "man-db"
-        "strace"
-        "man-pages"
-        "systemd-sysvcompat"
+            "openssh"
+            "gnupg"
+            "iproute2"
+            "procps-ng"
+            "lsof"
+            "htop"
+            "inetutils"
+            "psmisc"
+            "curl"
+            "tree"
+            "wget"
+            "rsync"
+            "ca-certificates"
+            "unzip"
+            "bzip2"
+            "xz"
+            "zip"
+            "nano"
+            "vim"
+            "less"
+            "jq"
+            "lsb-release"
+            "dialog"
+            "gcc-libs"
+            "krb5"
+            "icu"
+            "lttng-ust"
+            "zlib"
+            "sudo"
+            "ncdu"
+            "man-db"
+            "strace"
+            "man-pages"
+            "systemd-sysvcompat"
         )
 
         # Include git if not already installed (may be more recent than distro version)
-        if ! type git > /dev/null 2>&1; then
+        if ! type git >/dev/null 2>&1; then
             package_list+=("git")
         fi
 
         # Additonal packages (space separated string). Eg: "docker-compose kubectl"
         if [ -n "${ADDITIONAL_PACKAGES}" ]; then
             echo "Additional packages to install: ${ADDITIONAL_PACKAGES}..."
-            IFS=' ' read -r -a additional_pkgs <<< "${ADDITIONAL_PACKAGES}"
+            IFS=' ' read -r -a additional_pkgs <<<"${ADDITIONAL_PACKAGES}"
             package_list+=("${additional_pkgs[@]}")
         fi
-        
+
     fi
 
     # Install the list of packages
@@ -99,14 +99,13 @@ install_arch_packages() {
     check_and_install_packages "${package_list[@]}"
 
     # Install zsh (and recommended packages) if needed
-    if [ "${INSTALL_ZSH}" = "true" ] && ! type zsh > /dev/null 2>&1; then
+    if [ "${INSTALL_ZSH}" = "true" ] && ! type zsh >/dev/null 2>&1; then
         check_and_install_packages "zsh"
     fi
 
     PACKAGES_ALREADY_INSTALLED="true"
 
 }
-
 
 # ******************
 # ** Main section **
@@ -125,7 +124,7 @@ fi
 
 # Ensure that login shells get the correct path if the user updated the PATH using ENV.
 rm -f /etc/profile.d/00-restore-env.sh
-echo "export PATH=${PATH//$(sh -lc 'echo $PATH')/\$PATH}" > /etc/profile.d/00-restore-env.sh
+echo "export PATH=${PATH//$(sh -lc 'echo $PATH')/\$PATH}" >/etc/profile.d/00-restore-env.sh
 chmod +x /etc/profile.d/00-restore-env.sh
 
 # Bring in ID, ID_LIKE, VERSION_ID, VERSION_CODENAME
@@ -143,7 +142,7 @@ if [ "${USERNAME}" = "auto" ] || [ "${USERNAME}" = "automatic" ]; then
         USERNAME=""
         POSSIBLE_USERS=("devcontainer" "vscode" "node" "codespace" "$(awk -v val=1000 -F ":" '$3==val{print $1}' /etc/passwd)")
         for CURRENT_USER in "${POSSIBLE_USERS[@]}"; do
-            if id -u "${CURRENT_USER}" > /dev/null 2>&1; then
+            if id -u "${CURRENT_USER}" >/dev/null 2>&1; then
                 USERNAME=${CURRENT_USER}
                 break
             fi
@@ -160,7 +159,7 @@ fi
 
 # Create or update a non-root user to match UID/GID.
 group_name="${USERNAME}"
-if id -u "${USERNAME}" > /dev/null 2>&1; then
+if id -u "${USERNAME}" >/dev/null 2>&1; then
     # User exists, update if needed
     if [ "${USER_GID}" != "automatic" ] && [ "$USER_GID" != "$(id -g "$USERNAME")" ]; then
         group_name="$(id -gn "$USERNAME")"
@@ -186,7 +185,7 @@ fi
 
 # Add add sudo support for non-root user
 if [ "${USERNAME}" != "root" ] && [ "${EXISTING_NON_ROOT_USER}" != "${USERNAME}" ]; then
-    echo "$USERNAME" ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/"$USERNAME"
+    echo "$USERNAME" ALL=\(root\) NOPASSWD:ALL >/etc/sudoers.d/"$USERNAME"
     chmod 0440 /etc/sudoers.d/"$USERNAME"
     EXISTING_NON_ROOT_USER="${USERNAME}"
 fi
@@ -198,8 +197,8 @@ fi
 if [ "${USERNAME}" = "root" ]; then
     user_home="/root"
 # Check if user already has a home directory other than /home/${USERNAME}
-elif [ "/home/${USERNAME}" != "$( getent passwd "$USERNAME" | cut -d: -f6 )" ]; then
-    user_home=$( getent passwd "$USERNAME" | cut -d: -f6 )
+elif [ "/home/${USERNAME}" != "$(getent passwd "$USERNAME" | cut -d: -f6)" ]; then
+    user_home=$(getent passwd "$USERNAME" | cut -d: -f6)
 else
     user_home="/home/${USERNAME}"
     if [ ! -d "${user_home}" ]; then
@@ -209,7 +208,7 @@ else
 fi
 
 # Restore user .bashrc / .profile / .zshrc defaults from skeleton file if it doesn't exist or is empty
-possible_rc_files=( ".bashrc" ".profile" )
+possible_rc_files=(".bashrc" ".profile")
 [ "$INSTALL_OH_MY_ZSH_CONFIG" == "true" ] && possible_rc_files+=('.zshrc')
 [ "$INSTALL_ZSH" == "true" ] && possible_rc_files+=('.zprofile')
 for rc_file in "${possible_rc_files[@]}"; do
@@ -224,10 +223,10 @@ done
 # Add RC snippet and custom bash prompt
 if [ "${RC_SNIPPET_ALREADY_ADDED}" != "true" ]; then
     global_rc_path="/etc/bash.bashrc"
-    cat "${FEATURE_DIR}/scripts/rc_snippet.sh" >> "${global_rc_path}"
-    cat "${FEATURE_DIR}/scripts/bash_theme_snippet.sh" >> "${user_home}/.bashrc"
+    cat "${FEATURE_DIR}/scripts/rc_snippet.sh" >>"${global_rc_path}"
+    cat "${FEATURE_DIR}/scripts/bash_theme_snippet.sh" >>"${user_home}/.bashrc"
     if [ "${USERNAME}" != "root" ]; then
-        cat "${FEATURE_DIR}/scripts/bash_theme_snippet.sh" >> "/root/.bashrc"
+        cat "${FEATURE_DIR}/scripts/bash_theme_snippet.sh" >>"/root/.bashrc"
         chown "${USERNAME}":"${group_name}" "${user_home}/.bashrc"
     fi
     RC_SNIPPET_ALREADY_ADDED="true"
@@ -235,16 +234,16 @@ fi
 
 # Optionally configure zsh and Oh My Zsh!
 if [ "${INSTALL_ZSH}" = "true" ]; then
-   if [ ! -f "${user_home}/.zprofile" ]; then
+    if [ ! -f "${user_home}/.zprofile" ]; then
         touch "${user_home}/.zprofile"
         # shellcheck disable=SC2016
-        echo 'source $HOME/.profile' >> "${user_home}/.zprofile" # TODO: Reconsider adding '.profile' to '.zprofile'
+        echo 'source $HOME/.profile' >>"${user_home}/.zprofile" # TODO: Reconsider adding '.profile' to '.zprofile'
         chown "${USERNAME}":"${group_name}" "${user_home}/.zprofile"
     fi
 
     if [ "${ZSH_ALREADY_INSTALLED}" != "true" ]; then
         global_rc_path="/etc/zsh/zshrc"
-        cat "${FEATURE_DIR}/scripts/rc_snippet.sh" >> ${global_rc_path}
+        cat "${FEATURE_DIR}/scripts/rc_snippet.sh" >>${global_rc_path}
         ZSH_ALREADY_INSTALLED="true"
     fi
 
@@ -252,9 +251,9 @@ if [ "${INSTALL_ZSH}" = "true" ]; then
         # Fixing chsh always asking for a password on alpine linux
         # ref: https://askubuntu.com/questions/812420/chsh-always-asking-a-password-and-get-pam-authentication-failure.
         if [ ! -f "/etc/pam.d/chsh" ] || ! grep -Eq '^auth(.*)pam_rootok\.so$' /etc/pam.d/chsh; then
-            echo "auth sufficient pam_rootok.so" >> /etc/pam.d/chsh
+            echo "auth sufficient pam_rootok.so" >>/etc/pam.d/chsh
         elif [[ -n "$(awk '/^auth(.*)pam_rootok\.so$/ && !/^auth[[:blank:]]+sufficient[[:blank:]]+pam_rootok\.so$/' /etc/pam.d/chsh)" ]]; then
-            awk '/^auth(.*)pam_rootok\.so$/ { $2 = "sufficient" } { print }' /etc/pam.d/chsh > /tmp/chsh.tmp && mv /tmp/chsh.tmp /etc/pam.d/chsh
+            awk '/^auth(.*)pam_rootok\.so$/ { $2 = "sufficient" } { print }' /etc/pam.d/chsh >/tmp/chsh.tmp && mv /tmp/chsh.tmp /etc/pam.d/chsh
         fi
 
         chsh --shell /bin/zsh "${USERNAME}"
@@ -289,7 +288,7 @@ if [ "${INSTALL_ZSH}" = "true" ]; then
 
         # Add devcontainer .zshrc template
         if [ "$INSTALL_OH_MY_ZSH_CONFIG" = "true" ]; then
-            echo -e "$(cat "${template_path}")\nDISABLE_AUTO_UPDATE=true\nDISABLE_UPDATE_PROMPT=true" > "${user_rc_file}"
+            echo -e "$(cat "${template_path}")\nDISABLE_AUTO_UPDATE=true\nDISABLE_UPDATE_PROMPT=true" >"${user_rc_file}"
             sed -i -e 's/ZSH_THEME=.*/ZSH_THEME="devcontainers"/g' "${user_rc_file}"
         fi
 
@@ -338,6 +337,6 @@ echo -e "\
     LOCALE_ALREADY_SET=${LOCALE_ALREADY_SET}\n\
     EXISTING_NON_ROOT_USER=${EXISTING_NON_ROOT_USER}\n\
     RC_SNIPPET_ALREADY_ADDED=${RC_SNIPPET_ALREADY_ADDED}\n\
-    ZSH_ALREADY_INSTALLED=${ZSH_ALREADY_INSTALLED}" > "${MARKER_FILE}"
+    ZSH_ALREADY_INSTALLED=${ZSH_ALREADY_INSTALLED}" >"${MARKER_FILE}"
 
 echo "Done! Common utilities devcontainer feature has been installed."

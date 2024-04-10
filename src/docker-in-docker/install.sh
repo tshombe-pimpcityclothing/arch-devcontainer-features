@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 #-----------------------------------------------------------------------------------------------------------------
 # Copyright (c) Bart Venter.
-# Licensed under the MIT License. See https://github.com/bartventer/devcontainer-features for license information.
+# Licensed under the MIT License. See https://github.com/bartventer/arch-devcontainer-features for license information.
 #-----------------------------------------------------------------------------------------------------------------
 #
-# Docs: https://github.com/bartventer/devcontainer-features/tree/main/src/git/README.md
+# Docs: https://github.com/bartventer/arch-devcontainer-features/tree/main/src/git/README.md
 # Maintainer: Bart Venter <https://github.com/bartventer>
 set -e
 
 # shellcheck disable=SC2034
-DOCKER_VERSION="${VERSION:-"latest"}" # The Docker Engine + CLI should match in version
+DOCKER_VERSION="${VERSION:-"latest"}"                               # The Docker Engine + CLI should match in version
 DOCKER_DASH_COMPOSE_VERSION="${DOCKERDASHCOMPOSEVERSION:-"latest"}" #latest, v2 or none
 AZURE_DNS_AUTO_DETECTION="${AZUREDNSAUTODETECTION:-"true"}"
 DOCKER_DEFAULT_ADDRESS_POOL="${DOCKERDEFAULTADDRESSPOOL:-""}"
@@ -20,7 +20,7 @@ INSTALL_DOCKER_COMPOSE_SWITCH="${INSTALLDOCKERCOMPOSESWITCH:-"true"}"
 # Determine architecture
 architecture=$(uname -m)
 if [ "${architecture}" = "x86_64" ]; then
-        architecture="amd64"
+    architecture="amd64"
 fi
 
 # ***********************
@@ -32,7 +32,7 @@ UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
 # Check if the utility script exists
 if [ ! -f "$UTIL_SCRIPT" ]; then
     echo "Cloning archlinux_util.sh from GitHub to $UTIL_SCRIPT"
-    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/devcontainer-features/main/scripts/archlinux_util.sh
+    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/arch-devcontainer-features/main/scripts/archlinux_util.sh
     chmod +x "$UTIL_SCRIPT"
 fi
 
@@ -83,24 +83,23 @@ find_version_from_git_tags() {
             declare -g "${variable_name}"="$(echo "${version_list}" | head -n 1)"
         else
             set +e
-                declare -g "${variable_name}"="$(echo "${version_list}" | grep -E -m 1 "^${requested_version//./\\.}([\\.\\s]|$)")"
+            declare -g "${variable_name}"="$(echo "${version_list}" | grep -E -m 1 "^${requested_version//./\\.}([\\.\\s]|$)")"
             set -e
         fi
     fi
-    if [ -z "${!variable_name}" ] || ! echo "${version_list}" | grep "^${!variable_name//./\\.}$" > /dev/null 2>&1; then
+    if [ -z "${!variable_name}" ] || ! echo "${version_list}" | grep "^${!variable_name//./\\.}$" >/dev/null 2>&1; then
         err "Invalid ${variable_name} value: ${requested_version}\nValid values:\n${version_list}" >&2
         exit 1
     fi
     echo "${variable_name}=${!variable_name}"
 }
 
-
 # Determine the appropriate non-root user
 if [ "${USERNAME}" = "auto" ] || [ "${USERNAME}" = "automatic" ]; then
     USERNAME=""
     POSSIBLE_USERS=("vscode" "node" "codespace" "$(awk -v val=1000 -F ":" '$3==val{print $1}' /etc/passwd)")
     for CURRENT_USER in "${POSSIBLE_USERS[@]}"; do
-        if id -u "${CURRENT_USER}" > /dev/null 2>&1; then
+        if id -u "${CURRENT_USER}" >/dev/null 2>&1; then
             USERNAME=${CURRENT_USER}
             break
         fi
@@ -108,10 +107,9 @@ if [ "${USERNAME}" = "auto" ] || [ "${USERNAME}" = "automatic" ]; then
     if [ "${USERNAME}" = "" ]; then
         USERNAME=root
     fi
-elif [ "${USERNAME}" = "none" ] || ! id -u "${USERNAME}" > /dev/null 2>&1; then
+elif [ "${USERNAME}" = "none" ] || ! id -u "${USERNAME}" >/dev/null 2>&1; then
     USERNAME=root
 fi
-
 
 ###########################################
 # Start docker-in-docker installation
@@ -131,8 +129,8 @@ if [ "${DOCKER_DASH_COMPOSE_VERSION}" != "none" ]; then
 fi
 
 # Install docker-compose switch if not already installed - https://github.com/docker/compose-switch#manual-installation
-if [ "${INSTALL_DOCKER_COMPOSE_SWITCH}" = "true" ] && ! type compose-switch > /dev/null 2>&1; then
-    if type docker-compose > /dev/null 2>&1; then
+if [ "${INSTALL_DOCKER_COMPOSE_SWITCH}" = "true" ] && ! type compose-switch >/dev/null 2>&1; then
+    if type docker-compose >/dev/null 2>&1; then
         check_and_install_packages which
 
         echo "(*) Installing compose-switch..."
@@ -163,7 +161,7 @@ echo "docker-init doesn't exist, adding..."
 
 # Create the docker group if it does not exist
 # shellcheck disable=SC2002
-if ! cat /etc/group | grep -e "^docker:" > /dev/null 2>&1; then
+if ! cat /etc/group | grep -e "^docker:" >/dev/null 2>&1; then
     groupadd -r docker
 fi
 
@@ -186,12 +184,12 @@ if [ "${INSTALL_DOCKER_BUILDX}" = "true" ]; then
     find "${docker_home}" -type d -print0 | xargs -n 1 -0 chmod g+s
 fi
 
-tee /usr/local/share/docker-init.sh > /dev/null \
-<< EOF
+tee /usr/local/share/docker-init.sh >/dev/null \
+    <<EOF
 #!/bin/sh
 #-----------------------------------------------------------------------------------------------------------------
 # Copyright (c) Bart Venter.
-# Licensed under the MIT License. See https://github.com/bartventer/devcontainer-features for license information.
+# Licensed under the MIT License. See https://github.com/bartventer/arch-devcontainer-features for license information.
 #-----------------------------------------------------------------------------------------------------------------
 
 set -e
@@ -200,8 +198,8 @@ AZURE_DNS_AUTO_DETECTION=${AZURE_DNS_AUTO_DETECTION}
 DOCKER_DEFAULT_ADDRESS_POOL=${DOCKER_DEFAULT_ADDRESS_POOL}
 EOF
 
-tee -a /usr/local/share/docker-init.sh > /dev/null \
-<< 'EOF'
+tee -a /usr/local/share/docker-init.sh >/dev/null \
+    <<'EOF'
 dockerd_start="AZURE_DNS_AUTO_DETECTION=${AZURE_DNS_AUTO_DETECTION} DOCKER_DEFAULT_ADDRESS_POOL=${DOCKER_DEFAULT_ADDRESS_POOL} $(cat << 'INNEREOF'
     # explicitly remove dockerd and containerd PID file to ensure that it can start properly if it was stopped uncleanly
     find /run /var/run -iname 'docker*.pid' -delete || :

@@ -2,8 +2,8 @@
     "id": "docker-outside-of-docker",
     "version": "1.0.0",
     "name": "Docker (docker-outside-of-docker)",
-    "documentationURL": "https://github.com/bartventer/devcontainer-features/tree/main/src/docker-outside-of-docker",
-    "licenseURL": "https://github.com/bartventer/devcontainer-features/blob/main/LICENSE",
+    "documentationURL": "https://github.com/bartventer/arch-devcontainer-features/tree/main/src/docker-outside-of-docker",
+    "licenseURL": "https://github.com/bartventer/arch-devcontainer-features/blob/main/LICENSE",
     "description": "Re-use the host docker socket, adding the Docker CLI to a container. Feature invokes a script to enable using a forwarded Docker socket within a container to run Docker commands.",
     "options": {
         "version": {
@@ -53,6 +53,6 @@
         }
     ],
     "installsAfter": [
-        "ghcr.io/bartventer/devcontainer-features/common-utils"
+        "ghcr.io/bartventer/arch-devcontainer-features/common-utils"
     ]
 }

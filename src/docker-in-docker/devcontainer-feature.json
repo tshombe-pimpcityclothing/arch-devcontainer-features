@@ -2,8 +2,8 @@
   "id": "docker-in-docker",
   "version": "1.0.0",
   "name": "Docker (Docker-in-Docker)",
-  "documentationURL": "https://github.com/bartventer/devcontainer-features/tree/main/src/docker-in-docker",
-  "licenseURL": "https://github.com/bartventer/devcontainer-features/blob/main/LICENSE",
+  "documentationURL": "https://github.com/bartventer/arch-devcontainer-features/tree/main/src/docker-in-docker",
+  "licenseURL": "https://github.com/bartventer/arch-devcontainer-features/blob/main/LICENSE",
   "description": "Create child containers *inside* a container, independent from the host's docker instance. Installs Docker extension in the container along with needed CLIs.",
   "options": {
     "version": {
@@ -68,6 +68,6 @@
     }
   ],
   "installsAfter": [
-    "ghcr.io/bartventer/devcontainer-features/common-utils"
+    "ghcr.io/bartventer/arch-devcontainer-features/common-utils"
   ]
 }

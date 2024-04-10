@@ -1,10 +1,10 @@
 #!/bin/bash
 #-----------------------------------------------------------------------------------------------------------------
 # Copyright (c) Bart Venter.
-# Licensed under the MIT License. See https://github.com/bartventer/devcontainer-features for license information.
+# Licensed under the MIT License. See https://github.com/bartventer/arch-devcontainer-features for license information.
 #-----------------------------------------------------------------------------------------------------------------
 #
-# Docs: https://github.com/bartventer/devcontainer-features/tree/main/src/git/README.md
+# Docs: https://github.com/bartventer/arch-devcontainer-features/tree/main/src/git/README.md
 # Maintainer: Bart Venter <https://github.com/bartventer>
 #
 # This script will:
@@ -131,7 +131,7 @@ get_version_increment() {
 # ref: https://github.community/t/how-to-check-if-a-container-image-exists-on-ghcr/154836/3
 get_latest_version() {
     local feature=$1
-    local user_image="bartventer/devcontainer-features/$(basename $feature)"
+    local user_image="bartventer/arch-devcontainer-features/$(basename $feature)"
     local token=$(curl -s "https://ghcr.io/token?scope=repository:${user_image}:pull" | awk -F'"' '$0=$4')
     local tags=$(curl -s -H "Authorization: Bearer ${token}" "https://ghcr.io/v2/${user_image}/tags/list" | jq -r '.tags[]' 2>/dev/null)
     if [ -z "$tags" ]; then

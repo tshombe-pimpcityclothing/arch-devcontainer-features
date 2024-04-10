@@ -2,7 +2,7 @@
   "id": "terraform",
   "version": "1.0.0",
   "name": "Terraform, tflint, and TFGrunt",
-  "documentationURL": "https://github.com/bartventer/devcontainer-features/tree/main/src/terraform",
+  "documentationURL": "https://github.com/bartventer/arch-devcontainer-features/tree/main/src/terraform",
   "description": "Installs the Terraform CLI and optionally Terragrunt and TFLint. Auto-detects latest version and installs needed dependencies.",
   "options": {
     "installTerragrunt": {
@@ -57,6 +57,6 @@
     }
   },
   "installsAfter": [
-    "ghcr.io/bartventer/devcontainer-features/common-utils"
+    "ghcr.io/bartventer/arch-devcontainer-features/common-utils"
   ]
 }

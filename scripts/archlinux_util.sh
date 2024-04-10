@@ -1,16 +1,16 @@
 #!/bin/sh
 #-----------------------------------------------------------------------------------------------------------------
 # Copyright (c) Bart Venter.
-# Licensed under the MIT License. See https://github.com/bartventer/devcontainer-features for license information.
+# Licensed under the MIT License. See https://github.com/bartventer/arch-devcontainer-features for license information.
 #-----------------------------------------------------------------------------------------------------------------
 #
 # Maintainer: Bart Venter <https://github.com/bartventer>
 #
-# Description:  This utility script, `archlinux_util.sh`, performs common checks for Arch-based systems and 
-#               facilitates consistent usage of the pacman package manager. It also provides functions for 
-#               adjusting directory permissions  and installing packages. This script is intended to be used as a 
+# Description:  This utility script, `archlinux_util.sh`, performs common checks for Arch-based systems and
+#               facilitates consistent usage of the pacman package manager. It also provides functions for
+#               adjusting directory permissions  and installing packages. This script is intended to be used as a
 #               utility helper when setting up and managing Arch Linux systems in devcontainer features.
-# 
+#
 # Environment Variables:
 #   ARCH_VERBOSE_LOGGING: If set to "true", the script will output verbose log messages.
 #   ARCH_DIR_PERMS_CHECKED: If set to "true", the script will skip the directory permissions checks.
@@ -64,7 +64,7 @@ check_system() {
 # Checks if pacman is installed
 check_pacman() {
     echo_msg "Checking if pacman is installed..."
-    if ! command -v pacman > /dev/null 2>&1; then
+    if ! command -v pacman >/dev/null 2>&1; then
         echo "Pacman could not be found. Please install pacman and try again."
         exit 1
     fi

@@ -19,12 +19,12 @@
         }
     },
     "features": {
-        "ghcr.io/bartventer/devcontainer-features/common-utils:latest": {
+        "ghcr.io/bartventer/arch-devcontainer-features/common-utils:latest": {
             "configureZshAsDefaultShell": true,
             "installOhMyZshConfig": false,
             "additionalPackages": "nodejs npm yarn git jq make"
         },
-        "ghcr.io/bartventer/devcontainer-features/docker-in-docker:latest": {}
+        "ghcr.io/bartventer/arch-devcontainer-features/docker-in-docker:latest": {}
     },
     "postCreateCommand": "yarn global add @devcontainers/cli semver",
     "remoteUser": "vscode"

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #-----------------------------------------------------------------------------------------------------------------
 # Copyright (c) Bart Venter.
-# Licensed under the MIT License. See https://github.com/bartventer/devcontainer-features for license information.
+# Licensed under the MIT License. See https://github.com/bartventer/arch-devcontainer-features for license information.
 #-----------------------------------------------------------------------------------------------------------------
 #
-# Docs: https://github.com/bartventer/devcontainer-features/tree/main/src/aws-cli/README.md
+# Docs: https://github.com/bartventer/arch-devcontainer-features/tree/main/src/aws-cli/README.md
 # Maintainer: Bart Venter <https://github.com/bartventer>
 
 # Set error handling
@@ -22,7 +22,7 @@ UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
 # Check if the utility script exists
 if [ ! -f "$UTIL_SCRIPT" ]; then
     echo "Cloning archlinux_util.sh from GitHub to $UTIL_SCRIPT"
-    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/devcontainer-features/main/scripts/archlinux_util.sh
+    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/arch-devcontainer-features/main/scripts/archlinux_util.sh
     chmod +x "$UTIL_SCRIPT"
 fi
 
@@ -35,9 +35,12 @@ pkg=""
 validate_version() {
     echo "Validating VERSION..."
     case "${VERSION}" in
-        latest|v2) pkg="aws-cli-v2" ;;
-        v1) pkg="aws-cli" ;;
-        *) echo "Invalid version. Please set VERSION to 'latest', 'v1', or 'v2'."; exit 1 ;;
+    latest | v2) pkg="aws-cli-v2" ;;
+    v1) pkg="aws-cli" ;;
+    *)
+        echo "Invalid version. Please set VERSION to 'latest', 'v1', or 'v2'."
+        exit 1
+        ;;
     esac
     echo "OK. VERSION (${VERSION}) is valid."
 }

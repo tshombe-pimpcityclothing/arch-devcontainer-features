@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #-----------------------------------------------------------------------------------------------------------------
 # Copyright (c) Bart Venter.
-# Licensed under the MIT License. See https://github.com/bartventer/devcontainer-features for license information.
+# Licensed under the MIT License. See https://github.com/bartventer/arch-devcontainer-features for license information.
 #-----------------------------------------------------------------------------------------------------------------
 #
-# Docs: https://github.com/bartventer/devcontainer-features/tree/main/src/git/README.md
+# Docs: https://github.com/bartventer/arch-devcontainer-features/tree/main/src/git/README.md
 # Maintainer: Bart Venter <https://github.com/bartventer>
 
 set -e
@@ -23,9 +23,8 @@ INSTALL_DOCKER_COMPOSE_SWITCH="${INSTALLDOCKERCOMPOSESWITCH:-"true"}"
 # Determine architecture
 architecture=$(uname -m)
 if [ "${architecture}" = "x86_64" ]; then
-        architecture="amd64"
+    architecture="amd64"
 fi
-
 
 # ***********************
 # ** Utility functions **
@@ -36,14 +35,13 @@ UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
 # Check if the utility script exists
 if [ ! -f "$UTIL_SCRIPT" ]; then
     echo "Cloning archlinux_util.sh from GitHub to $UTIL_SCRIPT"
-    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/devcontainer-features/main/scripts/archlinux_util.sh
+    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/arch-devcontainer-features/main/scripts/archlinux_util.sh
     chmod +x "$UTIL_SCRIPT"
 fi
 
 # Source the utility script
 # shellcheck disable=SC1090
 . "$UTIL_SCRIPT"
-
 
 # Source /etc/os-release to get OS info
 # shellcheck disable=SC1091
@@ -59,7 +57,7 @@ if [ "${USERNAME}" = "auto" ] || [ "${USERNAME}" = "automatic" ]; then
     USERNAME=""
     POSSIBLE_USERS=("vscode" "node" "codespace" "$(awk -v val=1000 -F ":" '$3==val{print $1}' /etc/passwd)")
     for CURRENT_USER in "${POSSIBLE_USERS[@]}"; do
-        if id -u "${CURRENT_USER}" > /dev/null 2>&1; then
+        if id -u "${CURRENT_USER}" >/dev/null 2>&1; then
             USERNAME=${CURRENT_USER}
             break
         fi
@@ -67,10 +65,9 @@ if [ "${USERNAME}" = "auto" ] || [ "${USERNAME}" = "automatic" ]; then
     if [ "${USERNAME}" = "" ]; then
         USERNAME=root
     fi
-elif [ "${USERNAME}" = "none" ] || ! id -u "${USERNAME}" > /dev/null 2>&1; then
+elif [ "${USERNAME}" = "none" ] || ! id -u "${USERNAME}" >/dev/null 2>&1; then
     USERNAME=root
 fi
-
 
 # Figure out correct version of a three part version number is not passed
 find_version_from_git_tags() {
@@ -100,7 +97,7 @@ find_version_from_git_tags() {
             set -e
         fi
     fi
-    if [ -z "${!variable_name}" ] || ! echo "${version_list}" | grep "^${!variable_name//./\\.}$" > /dev/null 2>&1; then
+    if [ -z "${!variable_name}" ] || ! echo "${version_list}" | grep "^${!variable_name//./\\.}$" >/dev/null 2>&1; then
         echo -e "Invalid ${variable_name} value: ${requested_version}\nValid values:\n${version_list}" >&2
         exit 1
     fi
@@ -124,10 +121,9 @@ if [ "${DOCKER_DASH_COMPOSE_VERSION}" != "none" ]; then
     chmod +x "${docker_compose_path}"
 fi
 
-
 # Install docker-compose switch if not already installed - https://github.com/docker/compose-switch#manual-installation
-if [ "${INSTALL_DOCKER_COMPOSE_SWITCH}" = "true" ] && ! type compose-switch > /dev/null 2>&1; then
-    if type docker-compose > /dev/null 2>&1; then
+if [ "${INSTALL_DOCKER_COMPOSE_SWITCH}" = "true" ] && ! type compose-switch >/dev/null 2>&1; then
+    if type docker-compose >/dev/null 2>&1; then
         check_and_install_packages which
 
         echo "(*) Installing compose-switch..."
@@ -156,7 +152,6 @@ if [ -f "/usr/local/share/docker-init.sh" ]; then
 fi
 echo "docker-init doesn't exist, adding..."
 
-
 # Setup a docker group in the event the docker socket's group is not root
 if ! grep -qE '^docker:' /etc/group; then
     echo "(*) Creating missing docker group..."
@@ -182,7 +177,6 @@ if [ "${INSTALL_DOCKER_BUILDX}" = "true" ]; then
     find "${docker_home}" -type d -print0 | xargs -n 1 -0 chmod g+s
 fi
 
-
 # By default, make the source and target sockets the same
 if [ "${SOURCE_SOCKET}" != "${TARGET_SOCKET}" ]; then
     touch "${SOURCE_SOCKET}"
@@ -191,7 +185,7 @@ fi
 
 # Add a stub if not adding non-root user access, user is root
 if [ "${ENABLE_NONROOT_DOCKER}" = "false" ] || [ "${USERNAME}" = "root" ]; then
-    echo -e '#!/usr/bin/env bash\nexec "$@"' > /usr/local/share/docker-init.sh
+    echo -e '#!/usr/bin/env bash\nexec "$@"' >/usr/local/share/docker-init.sh
     chmod +x /usr/local/share/docker-init.sh
     exit 0
 fi
@@ -201,12 +195,12 @@ DOCKER_GID="$(grep -oP '^docker:x:\K[^:]+' /etc/group)"
 # If enabling non-root access and specified user is found, setup socat and add script
 chown -h "${USERNAME}":root "${TARGET_SOCKET}"
 check_and_install_packages socat
-tee /usr/local/share/docker-init.sh > /dev/null \
-<< EOF
+tee /usr/local/share/docker-init.sh >/dev/null \
+    <<EOF
 #!/usr/bin/env bash
 #-----------------------------------------------------------------------------------------------------------------
 # Copyright (c) Bart Venter.
-# Licensed under the MIT License. See https://github.com/bartventer/devcontainer-features for license information.
+# Licensed under the MIT License. See https://github.com/bartventer/arch-devcontainer-features for license information.
 #-----------------------------------------------------------------------------------------------------------------
 
 set -e
