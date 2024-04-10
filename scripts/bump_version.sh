@@ -186,10 +186,11 @@ commit_push_and_create_pr() {
 - **Feature:** \`$(basename $feature)\`"
     if [ "$new_version" = "$INITIAL_VERSION" ]; then
         commit_message="chore(release/$(basename $feature)): initial release"
-        body="$body\n- **Version:** \`$new_version\`"
+        # body="$body\n- **Version:** \`$new_version\`"
+        body=$(printf "%s\n- **Version:** \`%s\`" "$body" "$new_version")
     else
         commit_message="chore(release/$(basename $feature)): bump version from $latest_version to $new_version"
-        body="$body\n- **Latest Version:** \`$latest_version\`\n- **New Version:** \`$new_version\`"
+        body=$(printf "%s\n- **Latest Version:** \`%s\`\n- **New Version:** \`%s\`" "$body" "$latest_version" "$new_version")
     fi
     commit_message="$commit_message [skip ci]"
 
