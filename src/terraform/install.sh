@@ -8,6 +8,7 @@
 # Maintainer: Bart Venter <https://github.com/bartventer>
 set -e
 
+ENABLE_SHELL_COMPLETION=${ENABLECOMPLETION:-"true"}
 INSTALL_TERRAGRUNT=${INSTALLTERRAGRUNT:-true}
 TFLINT_VERSION="${TFLINT:-"latest"}"
 INSTALL_SENTINEL=${INSTALLSENTINEL:-false}
@@ -310,6 +311,13 @@ ensure_cosign() {
 
 # Dependencies
 check_and_install_packages curl ca-certificates gnupg coreutils dnsutils git terraform unzip
+
+if [ "${ENABLE_SHELL_COMPLETION}" = "true" ]; then
+    echo "Enabling shell auto-completion for Terraform..."
+    set +e
+    terraform -install-autocomplete
+    set -e
+fi
 
 # Install Terragrunt
 if [ "${INSTALL_TERRAGRUNT}" = "true" ]; then

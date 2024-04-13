@@ -5,6 +5,11 @@
   "documentationURL": "https://github.com/bartventer/arch-devcontainer-features/tree/main/src/terraform",
   "description": "Installs the Terraform CLI and optionally Terragrunt and TFLint. Auto-detects latest version and installs needed dependencies.",
   "options": {
+    "enableShellCompletion": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable shell completions for the Terraform CLI. This will add the necessary shell completions to your shell profile."
+    },
     "installTerragrunt": {
       "type": "boolean",
       "default": true,
