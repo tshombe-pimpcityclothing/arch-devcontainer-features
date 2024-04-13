@@ -15,6 +15,7 @@ Installs the Terraform CLI and optionally Terragrunt and TFLint. Auto-detects la
 
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
+| enableShellCompletion | Enable shell completions for the Terraform CLI. This will add the necessary shell completions to your shell profile. | boolean | true |
 | installTerragrunt | Install Terragrunt, a thin wrapper for Terraform that provides extra tools for working with multiple Terraform modules | boolean | true |
 | tflint | Tflint version (https://github.com/terraform-linters/tflint/releases) | string | latest |
 | installSentinel | Install sentinel, a language and framework for policy built to be embedded in existing software to enable fine-grained, logic-based policy decisions | boolean | false |
