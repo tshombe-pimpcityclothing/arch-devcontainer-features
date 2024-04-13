@@ -11,6 +11,7 @@
 set -e
 
 VERSION=${VERSION:-"latest"}
+ENABLE_SHELL_COMPLETION=${ENABLECOMPLETION:-"true"}
 INSTALL_SAM=${INSTALLSAM:-"none"}
 SAM_VERSION=${SAMVERSION:-"latest"}
 
@@ -227,6 +228,9 @@ check_system
 check_pacman
 
 install_aws_cli
+if [ "${ENABLE_SHELL_COMPLETION}" = "true" ]; then
+    enable_autocompletion "$(which aws_completer)" aws
+fi
 install_sam
 
 # Install AWS SAM CLI

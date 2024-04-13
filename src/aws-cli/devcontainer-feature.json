@@ -16,6 +16,11 @@
             "default": "latest",
             "description": "Select or enter an AWS CLI version."
         },
+        "enableShellCompletion": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable shell completions for the AWS CLI. This will add the necessary shell completions to your shell profile."
+        },
         "installSam": {
             "type": "string",
             "enum": [
