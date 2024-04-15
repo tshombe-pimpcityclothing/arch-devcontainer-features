@@ -50,5 +50,12 @@
     },
     "installsAfter": [
         "ghcr.io/bartventer/arch-devcontainer-features/common-utils"
+    ],
+    "keywords": [
+        "arch linux",
+        "amazon web services",
+        "aws cli",
+        "serverless",
+        "aws sam cli"
     ]
 }

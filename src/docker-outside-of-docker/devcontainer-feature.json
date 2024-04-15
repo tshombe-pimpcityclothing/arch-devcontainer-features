@@ -54,5 +54,12 @@
     ],
     "installsAfter": [
         "ghcr.io/bartventer/arch-devcontainer-features/common-utils"
+    ],
+    "keywords": [
+        "arch linux",
+        "docker",
+        "docker-compose",
+        "docker-buildx",
+        "docker-outside-of-docker"
     ]
 }

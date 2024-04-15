@@ -16,7 +16,7 @@
             "description": "List of additional packages to install. Simplifies inclusion of packages that would otherwise need separate features in non-Arch OS.",
             "default": "",
             "proposals": [
-                "go nodejs yarn npm make jq yq"
+                "go nodejs yarn npm make jq yq github-cli"
             ]
         },
         "configureZshAsDefaultShell": {
@@ -64,5 +64,11 @@
             "default": "automatic",
             "description": "Enter GID for non-root user"
         }
-    }
+    },
+    "keywords": [
+        "arch linux",
+        "zsh",
+        "oh my zsh!",
+        "common utilities"
+    ]
 }

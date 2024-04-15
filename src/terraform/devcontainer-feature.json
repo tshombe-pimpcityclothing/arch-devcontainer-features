@@ -63,5 +63,14 @@
     },
     "installsAfter": [
         "ghcr.io/bartventer/arch-devcontainer-features/common-utils"
+    ],
+    "keywords": [
+        "arch linux",
+        "terraform",
+        "terragrunt",
+        "tflint",
+        "sentinel",
+        "tfsec",
+        "terraform docs"
     ]
 }
