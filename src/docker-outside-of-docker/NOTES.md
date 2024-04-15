@@ -58,3 +58,7 @@ services:
 This Feature should work on recent versions of Arch Linux-based distributions with the `pacman` package manager installed.
 
 `bash` is required to execute the `install.sh` script.
+
+## Acknowledgments
+
+This project makes use of code from the [devcontainers/features](https://github.com/devcontainers/features/tree/main/src/docker-outside-of-docker) project. We thank the authors of devcontainers/features for their work and for making their code available for reuse.
