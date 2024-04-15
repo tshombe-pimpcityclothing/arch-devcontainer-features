@@ -36,6 +36,8 @@ GITHUB_WORKSPACE=${GITHUB_WORKSPACE:-"."}
 # GitHub Actions repository variables
 GH_USERNAME="${GH_ACTIONS_USERNAME:-"github-actions[bot]"}"
 GH_USER_EMAIL="$GH_USERNAME@users.noreply.github.com"
+GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-"bartventer"}"
+GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-"${GITHUB_REPOSITORY_OWNER}/arch-devcontainer-features"}"
 
 # Script variables
 VERSION_FILE_NAME="devcontainer-feature.json"
@@ -131,7 +133,7 @@ get_version_increment() {
 # ref: https://github.community/t/how-to-check-if-a-container-image-exists-on-ghcr/154836/3
 get_latest_version() {
     local feature=$1
-    local user_image="bartventer/arch-devcontainer-features/$(basename $feature)"
+    local user_image="${GITHUB_REPOSITORY}/$(basename $feature)"
     local token=$(curl -s "https://ghcr.io/token?scope=repository:${user_image}:pull" | awk -F'"' '$0=$4')
     local tags=$(curl -s -H "Authorization: Bearer ${token}" "https://ghcr.io/v2/${user_image}/tags/list" | jq -r '.tags[]' 2>/dev/null)
     if [ -z "$tags" ]; then
@@ -244,7 +246,12 @@ commit_push_and_create_pr() {
 
     # PR creation
     body=$(printf '%s\n%s' "$body" "$workflow_info")
-    if ! new_pr=$(gh pr create --title "$commit_message" --body "$body" --head "$(git rev-parse --abbrev-ref HEAD)"); then
+    if ! new_pr=$(gh pr create \
+        --title "$commit_message" \
+        --body "$body" \
+        --reviewer "$GITHUB_ACTOR" \
+        --label "documentation" \
+        --head "$(git rev-parse --abbrev-ref HEAD)"); then
         # Failure: Create an issue
         echo "Failed to create PR. Creating an issue instead."
         local issue_title="Failed to create PR: $commit_message"
