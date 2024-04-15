@@ -1,7 +1,7 @@
 
 # Common Utilities (common-utils)
 
-Installs a set of common command line utilities, Oh My Zsh!, and sets up a non-root user on Arch Linux.
+Provides common utilities, Oh My Zsh!, and a non-root user setup on Arch Linux. Notably, the 'additionalPackages' option simplifies the inclusion of packages that would otherwise need separate features in non-Arch OS.
 
 ## Example Usage
 
@@ -16,7 +16,7 @@ Installs a set of common command line utilities, Oh My Zsh!, and sets up a non-r
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
 | installZsh | Install ZSH? | boolean | true |
-| additionalPackages | Space separated list of additional packages to install | string | - |
+| additionalPackages | List of additional packages to install. Simplifies inclusion of packages that would otherwise need separate features in non-Arch OS. | string | - |
 | configureZshAsDefaultShell | Change default shell to ZSH? | boolean | false |
 | installOhMyZsh | Install Oh My Zsh!? | boolean | true |
 | installOhMyZshConfig | Allow installing the default dev container .zshrc templates? | boolean | true |
