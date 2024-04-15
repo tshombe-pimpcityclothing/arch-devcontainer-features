@@ -41,7 +41,7 @@ This repository contains a _collection_ of features curated by [@bartventer](htt
 
 ### common-utils
 
-Common Utilities installs a set of common command line utilities, Oh My Zsh!, and sets up a non-root user on Arch Linux.
+Common Utilities installs a set of common command line utilities, Oh My Zsh!, and sets up a non-root user on Arch Linux. The `additionalPackages` option simplifies the inclusion of packages that would otherwise need separate features in non-Arch OS.
 
 #### usage
 
