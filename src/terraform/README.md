@@ -42,6 +42,11 @@ This Feature should work on recent versions of Arch Linux-based distributions wi
 
 `bash` is required to execute the `install.sh` script.
 
+## Acknowledgments
+
+This project makes use of code from the [devcontainers/features](https://github.com/devcontainers/features/tree/main/src/terraform) project. We thank the authors of devcontainers/features for their work and for making their code available for reuse.
+
+
 ---
 
 _Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/bartventer/arch-devcontainer-features/blob/main/src/terraform/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._
