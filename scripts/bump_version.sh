@@ -223,6 +223,11 @@ commit_push_and_create_pr() {
     git config --global user.name $GH_USERNAME
     git config pull.rebase false
     local branch_name="bump-$(basename $feature)"
+    # Delete remote branch if it exists
+    # But first get open PRs on the branch
+    open_prs=$(gh pr list --base $branch_name --state open)
+    git push origin --delete $branch_name || true
+    # Create new branch
     git checkout -B $branch_name main || { log_fatal "Failed to checkout branch"; }
     set +x
 
@@ -236,13 +241,6 @@ commit_push_and_create_pr() {
     git commit -m "$commit_message" || { log_fatal "Failed to commit changes"; }
     git push origin $branch_name || { log_fatal "Failed to push changes"; }
     set +x
-
-    # Check if there's an open PR for the branch and close it
-    existing_pr=$(gh pr list --base $branch_name --state open)
-    if [ -n "$existing_pr" ]; then
-        pr_number=$(echo $existing_pr | cut -d' ' -f1)
-        gh pr close $pr_number --delete-branch || { log_fatal "Failed to close existing PR"; }
-    fi
 
     # PR creation
     body=$(printf '%s\n%s' "$body" "$workflow_info")
@@ -271,10 +269,13 @@ $workflow_info"
             gh issue comment $issue_number --body "The workflow failed again. Please check the logs.\n\nWorkflow URL: $workflow_url" || { log_fatal "Failed to update issue"; }
         fi
     else
-        # Success: Comment on the old PR if it exists
-        new_pr_number=$(echo $new_pr | cut -d' ' -f1)
-        if [ -n "$existing_pr" ]; then
-            gh pr comment $pr_number --body "This PR has been replaced by PR #$new_pr_number." || { log_fatal "Failed to comment on closed PR"; }
+        log_checkpoint "OK. PR created: $new_pr"
+        # If there were open PRs, comment on them to notify that they have been replaced
+        if [ -n "$open_prs" ]; then
+            echo "$open_prs" | while read pr; do
+                pr_number=$(echo "${pr}" | cut -f1)
+                gh pr comment "${pr_number}" --body "This PR has been replaced by #${new_pr}."
+            done
         fi
     fi
 }
