@@ -4,7 +4,7 @@
     "name": "Common Utilities",
     "documentationURL": "https://github.com/bartventer/arch-devcontainer-features/tree/main/src/common-utils",
     "licenseURL": "https://github.com/bartventer/arch-devcontainer-features/blob/main/LICENSE",
-    "description": "Installs a set of common command line utilities, Oh My Zsh!, and sets up a non-root user on Arch Linux.",
+    "description": "Provides common utilities, Oh My Zsh!, and a non-root user setup on Arch Linux. Notably, the 'additionalPackages' option simplifies the inclusion of packages that would otherwise need separate features in non-Arch OS.",
     "options": {
         "installZsh": {
             "type": "boolean",
@@ -13,10 +13,10 @@
         },
         "additionalPackages": {
             "type": "string",
-            "description": "Space separated list of additional packages to install",
+           "description": "List of additional packages to install. Simplifies inclusion of packages that would otherwise need separate features in non-Arch OS.",
             "default": "",
             "proposals": [
-                "go nodejs npm"
+                "go nodejs yarn npm make jq yq"
             ]
         },
         "configureZshAsDefaultShell": {
