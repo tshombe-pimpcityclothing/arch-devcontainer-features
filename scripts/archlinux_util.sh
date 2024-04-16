@@ -114,6 +114,11 @@ refresh_and_sort_mirrors() {
         pacman -Sy --noconfirm reflector
     fi
 
+    # Install rsync if it's not installed
+    if ! command -v rsync >/dev/null 2>&1; then
+        pacman -Sy --noconfirm rsync
+    fi
+
     # Use reflector to sort the mirrors by speed and update the mirrorlist file
     reflector --verbose --latest 50 --sort rate --save /etc/pacman.d/mirrorlist
 
