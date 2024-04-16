@@ -24,6 +24,7 @@ set -e
 ARCH_DIR_PERMS_CHECKED="${ARCH_DIR_PERMS_CHECKED:-false}"
 ARCH_KEYRING_CHECKED="${ARCH_KEYRING_CHECKED:-false}"
 ARCH_VERBOSE_LOGGING="${ARCH_VERBOSE_LOGGING:-false}"
+ARCH_MIRRORLIST_UPDATED="${ARCH_MIRRORLIST_UPDATED:-false}"
 
 # Echo message
 CYAN='\033[1;36m'
@@ -83,6 +84,45 @@ check_pacman() {
     echo_ok "Pacman is installed."
 }
 
+# adjust_dir_permissions Adjusts directory permissions to secure the system.
+# This function is idempotent
+# Usage: adjust_dir_permissions
+adjust_dir_permissions() {
+    if [ "$ARCH_DIR_PERMS_CHECKED" = false ]; then
+        echo_msg "Adjusting directory permissions..."
+        if [ "$(stat -c %a /srv/ftp)" != "555" ]; then
+            chmod 555 /srv/ftp
+        fi
+        if [ "$(stat -c %a /usr/share/polkit-1/rules.d/)" != "755" ]; then
+            chmod 755 /usr/share/polkit-1/rules.d/
+        fi
+        export ARCH_DIR_PERMS_CHECKED=true
+        echo_ok "Directory permissions adjusted."
+    fi
+}
+
+# refresh_and_sort_mirrors Refreshes the package lists and sorts the mirrors by speed.
+# Usage: refresh_and_sort_mirrors
+refresh_and_sort_mirrors() {
+    if [ "$ARCH_MIRRORLIST_UPDATED" = true ]; then
+        return
+    fi
+    echo_msg "Refreshing package lists and sorting mirrors by speed..."
+
+    # Install reflector if it's not installed
+    if ! command -v reflector >/dev/null 2>&1; then
+        pacman -Sy --noconfirm reflector
+    fi
+
+    # Use reflector to sort the mirrors by speed and update the mirrorlist file
+    reflector --verbose --latest 50 --sort rate --save /etc/pacman.d/mirrorlist
+
+    # Refresh the package lists
+    pacman -Sy
+    echo_ok "Package lists refreshed and mirrors sorted by speed."
+    export ARCH_MIRRORLIST_UPDATED=true
+}
+
 # init_pacman_keyring Initializes the pacman keyring and upgrades the system.
 # This function is idempotent
 # Usage: init_pacman_keyring
@@ -104,29 +144,13 @@ init_pacman_keyring() {
     fi
 }
 
-# adjust_dir_permissions Adjusts directory permissions to secure the system.
-# This function is idempotent
-# Usage: adjust_dir_permissions
-adjust_dir_permissions() {
-    if [ "$ARCH_DIR_PERMS_CHECKED" = false ]; then
-        echo_msg "Adjusting directory permissions..."
-        if [ "$(stat -c %a /srv/ftp)" != "555" ]; then
-            chmod 555 /srv/ftp
-        fi
-        if [ "$(stat -c %a /usr/share/polkit-1/rules.d/)" != "755" ]; then
-            chmod 755 /usr/share/polkit-1/rules.d/
-        fi
-        export ARCH_DIR_PERMS_CHECKED=true
-        echo_ok "Directory permissions adjusted."
-    fi
-}
-
 # check_and_install_packages Installs or updates packages using pacman.
 # Usage: check_and_install_packages <package1> <package2> ...
 # Example: check_and_install_packages coreutils git
 check_and_install_packages() {
 
     adjust_dir_permissions
+    refresh_and_sort_mirrors
     init_pacman_keyring
 
     echo_msg "Installing and updating packages ($*)..."
