@@ -120,7 +120,7 @@ refresh_and_sort_mirrors() {
     fi
 
     # Use reflector to sort the mirrors by speed and update the mirrorlist file
-    reflector --verbose --latest 15 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+    reflector --verbose --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
     # Refresh the package lists
     pacman -Sy
