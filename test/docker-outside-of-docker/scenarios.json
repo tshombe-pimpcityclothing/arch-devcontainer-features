@@ -1,28 +1,30 @@
 {
-    "docker_init": {
-        "image": "archlinux:latest",
-        "features": {
-            "docker-outside-of-docker": {},
-            "ghcr.io/bartventer/arch-devcontainer-features/common-utils:1": {}
-        },
-        "containerUser": "vscode"
-    },
-    "docker_build": {
-        "image": "archlinux:latest",
-        "features": {
-            "docker-outside-of-docker": {
-                "dockerDashComposeVersion": "v2"
-            },
-            "ghcr.io/bartventer/arch-devcontainer-features/common-utils:1": {}
-        },
-        "containerUser": "vscode"
-    },
     "docker_build_no_buildx": {
         "image": "archlinux:latest",
         "features": {
             "docker-outside-of-docker": {
                 "version": "20",
                 "installDockerBuildx": false
+            },
+            "ghcr.io/bartventer/arch-devcontainer-features/common-utils:1": {}
+        },
+        "containerUser": "vscode"
+    },
+    "docker_build_no_compose": {
+        "image": "archlinux:latest",
+        "features": {
+            "docker-in-docker": {
+                "dockerDashComposeVersion": "none"
+            },
+            "ghcr.io/bartventer/arch-devcontainer-features/common-utils:1": {}
+        },
+        "remoteUser": "node"
+    },
+    "docker_build": {
+        "image": "archlinux:latest",
+        "features": {
+            "docker-outside-of-docker": {
+                "dockerDashComposeVersion": "v2"
             },
             "ghcr.io/bartventer/arch-devcontainer-features/common-utils:1": {}
         },
@@ -38,14 +40,20 @@
         },
         "containerUser": "vscode"
     },
-    "docker_build_no_compose": {
+    "docker_enable_autocompletion": {
         "image": "archlinux:latest",
         "features": {
             "docker-in-docker": {
-                "dockerDashComposeVersion": "none"
-            },
+                "enableDockerAutocompletion": true
+            }
+        }
+    },
+    "docker_init": {
+        "image": "archlinux:latest",
+        "features": {
+            "docker-outside-of-docker": {},
             "ghcr.io/bartventer/arch-devcontainer-features/common-utils:1": {}
         },
-        "remoteUser": "node"
+        "containerUser": "vscode"
     }
 }
