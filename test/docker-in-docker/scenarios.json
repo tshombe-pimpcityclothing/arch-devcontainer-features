@@ -49,6 +49,14 @@
             }
         }
     },
+    "docker_enable_autocompletion": {
+        "image": "archlinux:latest",
+        "features": {
+            "docker-in-docker": {
+                "enableDockerAutocompletion": true
+            }
+        }
+    },
     "docker_with_on_create_command": {
         "image": "archlinux:latest",
         "remoteUser": "vscode",
