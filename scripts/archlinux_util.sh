@@ -6,30 +6,30 @@
 #
 # Maintainer: Bart Venter <https://github.com/bartventer>
 #
-# Description:  This utility script, `archlinux_util.sh`, performs common checks for Arch-based systems and
-#               facilitates consistent usage of the pacman package manager. It also provides functions for
-#               adjusting directory permissions  and installing packages. This script is intended to be used as a
-#               utility helper when setting up and managing Arch Linux systems in devcontainer features.
+# Description:
+# This script performs common checks and operations for Arch-based systems. It includes functions for checking
+# system requirements, adjusting directory permissions, managing packages, and more. It is intended to be used
+# as a utility helper for setting up and managing Arch Linux systems in devcontainer features.
 #
 # Environment Variables:
-#   ARCH_VERBOSE_LOGGING: If set to "true", the script will output verbose log messages.
-#   ARCH_DIR_PERMS_CHECKED: If set to "true", the script will skip the directory permissions checks.
-#   ARCH_KEYRING_CHECKED: If set to "true", the script will skip the pacman keyring initialization.
-#
+#   _ARCH_VERBOSE_LOGGING: If set to "true", the script will output verbose log messages.
+#   _ARCH_DIR_PERMS_CHECKED: If set to "true", the script will skip the directory permissions checks.
+#   _ARCH_KEYRING_CHECKED: If set to "true", the script will skip the pacman keyring initialization.
+#   _ARCH_MIRRORLIST_UPDATED: If set to "true", the script will skip the mirrorlist update.
 #-----------------------------------------------------------------------------------------------------------------
 
 # Exit on error
 set -e
 
-ARCH_DIR_PERMS_CHECKED="${ARCH_DIR_PERMS_CHECKED:-false}"
-ARCH_KEYRING_CHECKED="${ARCH_KEYRING_CHECKED:-false}"
-ARCH_VERBOSE_LOGGING="${ARCH_VERBOSE_LOGGING:-false}"
-ARCH_MIRRORLIST_UPDATED="${ARCH_MIRRORLIST_UPDATED:-false}"
+_ARCH_DIR_PERMS_CHECKED="${_ARCH_DIR_PERMS_CHECKED:-false}"
+_ARCH_KEYRING_CHECKED="${_ARCH_KEYRING_CHECKED:-false}"
+_ARCH_VERBOSE_LOGGING="${_ARCH_VERBOSE_LOGGING:-false}"
+_ARCH_MIRRORLIST_UPDATED="${_ARCH_MIRRORLIST_UPDATED:-false}"
 
 # Echo message
-CYAN='\033[1;36m'
-BLUE='\033[1;34m'
-NC='\033[0m' # No color
+_CYAN='\033[1;36m'
+_BLUE='\033[1;34m'
+_NC='\033[0m' # No color
 
 # echo_msg Outputs a message with a timestamp and script path.
 # Usage: echo_msg "Message"
@@ -37,11 +37,11 @@ echo_msg() {
     message=$1
     script_path=$(realpath "$0")
 
-    if [ "$ARCH_VERBOSE_LOGGING" = "true" ]; then
+    if [ "$_ARCH_VERBOSE_LOGGING" = "true" ]; then
         timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-        printf "[%b%s%b] [%b%s%b] %s\n" "$CYAN" "$script_path" "$NC" "$BLUE" "$timestamp" "$NC" "$message"
+        printf "[%b%s%b] [%b%s%b] %s\n" "$_CYAN" "$script_path" "$_NC" "$_BLUE" "$timestamp" "$_NC" "$message"
     else
-        printf "[%b%s%b] %s\n" "$CYAN" "$script_path" "$NC" "$message"
+        printf "[%b%s%b] %s\n" "$_CYAN" "$script_path" "$_NC" "$message"
     fi
 }
 
@@ -88,7 +88,7 @@ check_pacman() {
 # This function is idempotent
 # Usage: adjust_dir_permissions
 adjust_dir_permissions() {
-    if [ "$ARCH_DIR_PERMS_CHECKED" = false ]; then
+    if [ "$_ARCH_DIR_PERMS_CHECKED" = false ]; then
         echo_msg "Adjusting directory permissions..."
         if [ "$(stat -c %a /srv/ftp)" != "555" ]; then
             chmod 555 /srv/ftp
@@ -96,7 +96,7 @@ adjust_dir_permissions() {
         if [ "$(stat -c %a /usr/share/polkit-1/rules.d/)" != "755" ]; then
             chmod 755 /usr/share/polkit-1/rules.d/
         fi
-        export ARCH_DIR_PERMS_CHECKED=true
+        export _ARCH_DIR_PERMS_CHECKED=true
         echo_ok "Directory permissions adjusted."
     fi
 }
@@ -104,7 +104,7 @@ adjust_dir_permissions() {
 # refresh_and_sort_mirrors Refreshes the package lists and sorts the mirrors by speed.
 # Usage: refresh_and_sort_mirrors
 refresh_and_sort_mirrors() {
-    if [ "$ARCH_MIRRORLIST_UPDATED" = true ]; then
+    if [ "$_ARCH_MIRRORLIST_UPDATED" = true ]; then
         return
     fi
     echo_msg "Refreshing package lists and sorting mirrors by speed..."
@@ -125,18 +125,18 @@ refresh_and_sort_mirrors() {
     # Refresh the package lists
     pacman -Sy
     echo_ok "Package lists refreshed and mirrors sorted by speed."
-    export ARCH_MIRRORLIST_UPDATED=true
+    export _ARCH_MIRRORLIST_UPDATED=true
 }
 
 # init_pacman_keyring Initializes the pacman keyring and upgrades the system.
 # This function is idempotent
 # Usage: init_pacman_keyring
 init_pacman_keyring() {
-    if [ "$ARCH_KEYRING_CHECKED" = false ]; then
+    if [ "$_ARCH_KEYRING_CHECKED" = false ]; then
         echo_msg "Initializing pacman keyring..."
         if pacman-key --init && pacman-key --populate archlinux; then
             echo_ok "Pacman keyring initialized."
-            export ARCH_KEYRING_CHECKED=true
+            export _ARCH_KEYRING_CHECKED=true
         else
             echo_msg "ERROR. Pacman keyring initialization failed."
             exit 1
@@ -159,7 +159,7 @@ check_and_install_packages() {
     init_pacman_keyring
 
     echo_msg "Installing and updating packages ($*)..."
-    if ! pacman -Syu --needed --noconfirm "$@"; then
+    if ! pacman -Syu --needed --noconfirm --disable-download-timeout "$@"; then
         echo "Failed to install or update packages. If you're getting an error about a missing secret key, you might need to manually import the key. Refer to the Arch Linux wiki for more information: https://wiki.archlinux.org/title/Pacman/Package_signing#Adding_unofficial_keys"
         exit 1
     fi
