@@ -19,6 +19,7 @@ TARGET_SOCKET="${TARGET_SOCKET:-"/var/run/docker.sock"}"
 USERNAME="${USERNAME:-"${_REMOTE_USER:-"automatic"}"}"
 INSTALL_DOCKER_BUILDX="${INSTALLDOCKERBUILDX:-"true"}"
 INSTALL_DOCKER_COMPOSE_SWITCH="${INSTALLDOCKERCOMPOSESWITCH:-"true"}"
+ENABLE_DOCKER_AUTOCOMPLETION="${ENABLEDOCKERAUTOCOMPLETION:-"true"}"
 
 # Determine architecture
 architecture=$(uname -m)
@@ -191,6 +192,37 @@ if [ "${ENABLE_NONROOT_DOCKER}" = "false" ] || [ "${USERNAME}" = "root" ]; then
 fi
 
 DOCKER_GID="$(grep -oP '^docker:x:\K[^:]+' /etc/group)"
+
+# enable_autocompletion installs the Docker CLI autocompletion script for the specified shell
+enable_autocompletion() {
+    local completion_path=$1
+    local completion_url=$2
+
+    if [ ! -f "${completion_path}" ]; then
+        echo "Enabling autocompletion for ${SHELL}..."
+        mkdir -p "$(dirname "${completion_path}")"
+        curl -L "${completion_url}" >"${completion_path}"
+        echo "OK. Autocompletion enabled."
+    fi
+}
+
+# Enable Docker CLI autocompletion
+if [ "${ENABLE_DOCKER_AUTOCOMPLETION}" = "true" ]; then
+    case "${SHELL}" in
+    */zsh)
+        enable_autocompletion "${HOME}/.zsh/completions/_docker" "https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker"
+        ;;
+    */bash)
+        enable_autocompletion "${HOME}/.bash_completion.d/docker" "https://raw.githubusercontent.com/docker/cli/master/contrib/completion/bash/docker"
+        ;;
+    */fish)
+        enable_autocompletion "${HOME}/.config/fish/completions/docker.fish" "https://raw.githubusercontent.com/docker/cli/master/contrib/completion/fish/docker.fish"
+        ;;
+    *)
+        echo "Shell ${SHELL} not supported for autocompletion."
+        ;;
+    esac
+fi
 
 # If enabling non-root access and specified user is found, setup socat and add script
 chown -h "${USERNAME}":root "${TARGET_SOCKET}"
