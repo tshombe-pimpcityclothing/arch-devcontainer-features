@@ -15,7 +15,6 @@ Installs the AWS CLI along with needed dependencies. Useful for base Dockerfiles
 
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
-| version | Select or enter an AWS CLI version. | string | latest |
 | enableShellCompletion | Enable shell completions for the AWS CLI. This will add the necessary shell completions to your shell profile. | boolean | true |
 | installSam | Install the AWS SAM CLI (https://docs.aws.amazon.com/serverless-application-model/) via the specified method. | string | none |
 | samVersion | SAM CLI version (https://github.com/aws/aws-sam-cli/releases). Only applicable if `installSam` is set to `standalone`. | string | latest |
@@ -26,7 +25,7 @@ Installs the AWS CLI along with needed dependencies. Useful for base Dockerfiles
 
 - `AmazonWebServices.aws-toolkit-vscode`
 
-Available versions of the AWS CLI can be found here: https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst.
+As of version 1.4.1, this feature will always install AWS CLI v1. The option to select AWS CLI v2 has been removed due to AWS CLI v2 being moved to the Arch User Repository (AUR).
 
 ## OS Support
 
