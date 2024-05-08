@@ -1,4 +1,4 @@
-Available versions of the AWS CLI can be found here: https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst.
+As of version 1.4.1, this feature will always install AWS CLI v1. The option to select AWS CLI v2 has been removed due to AWS CLI v2 being moved to the Arch User Repository (AUR).
 
 ## OS Support
 

@@ -10,7 +10,6 @@
 # Set error handling
 set -e
 
-VERSION=${VERSION:-"latest"}
 ENABLE_SHELL_COMPLETION=${ENABLECOMPLETION:-"true"}
 INSTALL_SAM=${INSTALLSAM:-"none"}
 SAM_VERSION=${SAMVERSION:-"latest"}
@@ -27,17 +26,17 @@ aarch64 | armv8*) architecture="arm64" ;;
 esac
 
 install_aws_cli() {
-    local pkg=""
-    case "${VERSION}" in
-    latest | v2) pkg="aws-cli-v2" ;;
-    v1) pkg="aws-cli" ;;
-    *)
-        echo "Invalid version. Please set VERSION to 'latest', 'v1', or 'v2'."
-        exit 1
-        ;;
-    esac
-    check_and_install_packages "${pkg}"
-    echo "OK. AWS CLI (${VERSION}) installed."
+    echo "
+#############################################################
+#                                                           #
+#  NOTICE: AWS CLI v2 has been moved to the Arch User       #
+#  Repository (AUR). This script will now default to        #
+#  installing AWS CLI v1 from the official repositories.    #
+#                                                           #
+#############################################################
+"
+    check_and_install_packages aws-cli
+    echo "OK. AWS CLI installed."
 }
 
 install_sam_standalone() {
@@ -173,13 +172,15 @@ install_sam_python() {
     echo ":: Verifying the installation..."
     sam --version
     echo "OK. AWS SAM CLI is installed.
-===============================================================================
-To upgrade the AWS SAM CLI in the future, follow these steps:
-1. Activate the Python virtual environment: source $sam_venv_bin/activate
-2. Upgrade the AWS SAM CLI: pip install --upgrade aws-sam-cli
-3. Move the AWS SAM CLI executable to /usr/local/bin: mv $sam_venv_bin/sam /usr/local/bin/sam
-4. Deactivate the Python virtual environment: deactivate
-===============================================================================
+#####################################################################################################
+#                                                                                                   #
+#   To upgrade the AWS SAM CLI in the future, follow these steps:                                   #
+#   1. Activate the Python virtual environment: source $sam_venv_bin/activate                       #
+#   2. Upgrade the AWS SAM CLI: pip install --upgrade aws-sam-cli                                   #
+#   3. Move the AWS SAM CLI executable to /usr/local/bin: mv $sam_venv_bin/sam /usr/local/bin/sam   #
+#   4. Deactivate the Python virtual environment: deactivate                                        #
+#                                                                                                   #
+#####################################################################################################
 "
 }
 
@@ -218,7 +219,7 @@ fi
 # == Main ==
 # ==========
 
-echo_msg "Installing AWS CLI (${VERSION}) devcontainer feature..."
+echo_msg "Installing AWS CLI devcontainer feature..."
 
 # Check if script is run as root
 check_root
@@ -234,4 +235,4 @@ fi
 install_sam
 
 # Install AWS SAM CLI
-echo_msg "Done. AWS CLI (${VERSION}) devcontainer feature installed."
+echo_msg "Done. AWS CLI devcontainer feature installed."
