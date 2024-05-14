@@ -78,6 +78,8 @@ install_arch_packages() {
             "strace"
             "man-pages"
             "systemd-sysvcompat"
+            "zsh-completions"
+            "diffutils"
         )
 
         # Include git if not already installed (may be more recent than distro version)
