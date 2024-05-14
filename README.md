@@ -114,6 +114,23 @@ Docker outside of Docker re-uses the host docker socket, adding the Docker CLI t
 
 Additional options can be found in the [feature documentation](src/docker-outside-of-docker/README.md).
 
+### go
+
+Go installs the Go programming language and common Go utilities.
+
+#### usage
+
+```json
+"features": {
+    "ghcr.io/bartventer/arch-devcontainer-features/go:latest": {
+        "golangciLintVersion": "latest",
+        "installGoReleaser": true,
+    }
+}
+```
+
+Additional options can be found in the [feature documentation](src/go/README.md).
+
 ### terraform
 
 Terraform installs the Terraform CLI and optionally Terragrunt and TFLint. Auto-detects the latest version and installs needed dependencies.
