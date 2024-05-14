@@ -25,131 +25,16 @@
 
 This repository contains a _collection_ of features curated by [@bartventer](https://github.com/bartventer). While most of these features are built for Arch Linux, please refer to the "OS Support" section of each feature for specific operating system compatibility.
 
-## Table of Contents
-
--   [Collected Features](#collected-features)
-    -   [common-utils](#common-utils)
-    -   [aws-cli](#aws-cli)
-    -   [docker-in-docker](#docker-in-docker)
-    -   [docker-outside-of-docker](#docker-outside-of-docker)
-    -   [terraform](#terraform)
--   [Contributing](#contributing)
--   [License](#license)
--   [Trademarks](#trademarks)
-
 ## Collected Features
 
-### common-utils
-
-Common Utilities installs a set of common command line utilities, Oh My Zsh!, and sets up a non-root user on Arch Linux. The `additionalPackages` option simplifies the inclusion of packages that would otherwise need separate features in non-Arch OS.
-
-#### usage
-
-```json
-"features": {
-    "ghcr.io/bartventer/arch-devcontainer-features/common-utils:1": {
-        "installZsh": true,
-        "additionalPackages": "go nodejs npm",
-        "configureZshAsDefaultShell": false,
-        "installOhMyZsh": true,
-        "installOhMyZshConfig": true,
-        "username": "automatic",
-        "userUid": "automatic",
-        "userGid": "automatic"
-    }
-}
-```
-
-Additional options can be found in the [feature documentation](src/common-utils/README.md).
-
-### aws-cli
-
-AWS CLI installs the AWS CLI along with needed dependencies. Useful for base Dockerfiles that often are missing required install dependencies like gpg.
-
-#### usage
-
-```json
-"features": {
-    "ghcr.io/bartventer/arch-devcontainer-features/aws-cli:latest": {
-        "installSam": "standalone",
-        "samVersion": "latest",
-    }
-}
-```
-
-Additional options can be found in the [feature documentation](src/aws-cli/README.md).
-
-### docker-in-docker
-
-Docker in Docker installs Docker and Docker Compose in a Docker container. This is useful for running Docker commands inside a Docker container.
-
-#### usage
-
-```json
-"features": {
-    "ghcr.io/bartventer/arch-devcontainer-features/docker-in-docker:latest": {
-        "version": "latest"
-    }
-}
-```
-
-Additional options can be found in the [feature documentation](src/docker-in-docker/README.md).
-
-### docker-outside-of-docker
-
-Docker outside of Docker re-uses the host docker socket, adding the Docker CLI to a container. This feature invokes a script to enable using a forwarded Docker socket within a container to run Docker commands.
-
-#### usage
-
-```json
-"features": {
-    "ghcr.io/bartventer/arch-devcontainer-features/docker-outside-of-docker:latest": {
-        "version": "latest",
-        "dockerDashComposeVersion": "v2",
-        "installDockerBuildx": true,
-        "installDockerComposeSwitch": true
-    }
-}
-```
-
-Additional options can be found in the [feature documentation](src/docker-outside-of-docker/README.md).
-
-### go
-
-Go installs the Go programming language and common Go utilities.
-
-#### usage
-
-```json
-"features": {
-    "ghcr.io/bartventer/arch-devcontainer-features/go:latest": {
-        "golangciLintVersion": "latest",
-        "installGoReleaser": true,
-    }
-}
-```
-
-Additional options can be found in the [feature documentation](src/go/README.md).
-
-### terraform
-
-Terraform installs the Terraform CLI and optionally Terragrunt and TFLint. Auto-detects the latest version and installs needed dependencies.
-
-#### usage
-
-```json
-"features": {
-    "ghcr.io/bartventer/arch-devcontainer-features/terraform:latest": {
-        "installTerragrunt": true,
-        "installTflint": true,
-        "installSentinel": true,
-        "installTFsec": true,
-        "installTerraformDocs": true
-    }
-}
-```
-
-Additional options can be found in the [feature documentation](src/terraform/README.md).
+| Feature                                                            | Description                                                                                             |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| [common-utils](src/common-utils/README.md)                         | Installs a set of common command line utilities, Oh My Zsh!, and sets up a non-root user on Arch Linux. |
+| [aws-cli](src/aws-cli/README.md)                                   | Installs the AWS CLI along with needed dependencies.                                                    |
+| [docker-in-docker](src/docker-in-docker/README.md)                 | Installs Docker and Docker Compose in a Docker container.                                               |
+| [docker-outside-of-docker](src/docker-outside-of-docker/README.md) | Re-uses the host docker socket, adding the Docker CLI to a container.                                   |
+| [go](src/go/README.md)                                             | Installs the Go programming language and common Go utilities.                                           |
+| [terraform](src/terraform/README.md)                               | Installs the Terraform CLI and optionally Terragrunt and TFLint.                                        |
 
 ## Contributing
 
