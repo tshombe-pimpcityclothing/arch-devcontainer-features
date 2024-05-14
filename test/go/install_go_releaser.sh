@@ -7,7 +7,7 @@ set -e
 source dev-container-features-test-lib
 
 check "version" go version
-check "goreleaser is installed at correct path" bash -c "which goreleaser | grep /go/bin/goreleaser"
+check "goreleaser is installed at correct path" bash -c "which goreleaser | grep /usr/bin/goreleaser"
 
 # Report result
 reportResults

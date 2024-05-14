@@ -7,7 +7,7 @@ set -e
 source dev-container-features-test-lib
 
 check "version" go version
-check "yaegi is installed at correct path" bash -c "which yaegi | grep /go/bin/yaegi"
+check "yaegi is installed at correct path" bash -c "which yaegi | grep /usr/bin/yaegi"
 
 # Report result
 reportResults
