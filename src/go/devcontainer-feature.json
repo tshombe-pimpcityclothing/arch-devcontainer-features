@@ -44,6 +44,11 @@
             ]
         }
     },
+    "containerEnv": {
+        "GOROOT": "/usr/lib/go",
+        "GOPATH": "/go",
+        "PATH": "/usr/lib/go/bin:/go/bin:$PATH"
+    },
     "capAdd": [
         "SYS_PTRACE"
     ],
