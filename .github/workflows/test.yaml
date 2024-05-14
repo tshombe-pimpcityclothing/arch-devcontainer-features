@@ -17,6 +17,7 @@ jobs:
                     - ${{ vars.FEATURE_DOCKER_IN_DOCKER}}
                     - ${{ vars.FEATURE_DOCKER_OUTSIDE_OF_DOCKER}}
                     - ${{ vars.FEATURE_TERRAFORM}}
+                    - ${{ vars.FEATURE_GO}}
                 base-image:
                     - archlinux:latest
                     - archlinux:base
@@ -42,6 +43,7 @@ jobs:
                     - ${{ vars.FEATURE_DOCKER_IN_DOCKER}}
                     - ${{ vars.FEATURE_DOCKER_OUTSIDE_OF_DOCKER}}
                     - ${{ vars.FEATURE_TERRAFORM}}
+                    - ${{ vars.FEATURE_GO}}
         steps:
             - uses: actions/checkout@v4
 
