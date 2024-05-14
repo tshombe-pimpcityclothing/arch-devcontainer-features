@@ -1,0 +1,34 @@
+{
+    "install_go_releaser": {
+        "image": "archlinux:latest",
+        "features": {
+            "go": {
+                "installGoReleaser": true
+            }
+        }
+    },
+    "install_gox": {
+        "image": "archlinux:latest",
+        "features": {
+            "go": {
+                "installGox": true
+            }
+        }
+    },
+    "installKo": {
+        "image": "archlinux:latest",
+        "features": {
+            "go": {
+                "installKo": true
+            }
+        }
+    },
+    "installYaegi": {
+        "image": "archlinux:latest",
+        "features": {
+            "go": {
+                "installYaegi": true
+            }
+        }
+    }
+}
