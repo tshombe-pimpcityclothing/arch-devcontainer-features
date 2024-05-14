@@ -32,6 +32,8 @@ INSTALL_GO_RELEASER=${INSTALLGORELEASER:-"false"}
 INSTALL_GOX=${INSTALLGOX:-"false"}
 INSTALL_KO=${INSTALLKO:-"false"}
 INSTALL_YAEGI=${INSTALLYAEGI:-"false"}
+INSTALL_AIR=${INSTALLAIR:-"false"}
+INSTALL_COBRA_CLI=${INSTALLCOBRACLI:-"false"}
 
 UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
 
@@ -59,19 +61,21 @@ check_pacman
 
 # Install Go
 # go-tools: https://gitlab.archlinux.org/archlinux/packaging/packages/go-tools/-/blob/main/PKGBUILD?ref_type=heads
-check_and_install_packages go go-tools delve which
+PACKAGES="go go-tools delve which"
 if [ "$INSTALL_GO_RELEASER" = "true" ]; then
-    check_and_install_packages goreleaser
+    PACKAGES="$PACKAGES goreleaser"
 fi
 if [ "$INSTALL_GOX" = "true" ]; then
-    check_and_install_packages gox
+    PACKAGES="$PACKAGES gox"
 fi
 if [ "$INSTALL_KO" = "true" ]; then
-    check_and_install_packages ko
+    PACKAGES="$PACKAGES ko"
 fi
 if [ "$INSTALL_YAEGI" = "true" ]; then
-    check_and_install_packages yaegi
+    PACKAGES="$PACKAGES yaegi"
 fi
+# shellcheck disable=SC2086
+check_and_install_packages $PACKAGES
 
 GO_TOOLS="\
     golang.org/x/tools/gopls@latest \
@@ -84,9 +88,17 @@ GO_TOOLS="\
     github.com/cweill/gotests/gotests@latest \
     github.com/josharian/impl@latest \
     golang.org/x/lint/golint@latest \
-    github.com/haya14busa/goplay/cmd/goplay@latest \
-    github.com/cosmtrek/air@latest \
-    github.com/spf13/cobra-cli@latest"
+    github.com/haya14busa/goplay/cmd/goplay@latest"
+
+# Add Air to the list of Go tools
+if [ "$INSTALL_AIR" = "true" ]; then
+    GO_TOOLS="${GO_TOOLS} github.com/cosmtrek/air@latest"
+fi
+
+# Add Cobra CLI to the list of Go tools
+if [ "$INSTALL_COBRA_CLI" = "true" ]; then
+    GO_TOOLS="${GO_TOOLS} github.com/spf13/cobra-cli@latest"
+fi
 
 echo_msg "Installing Go tools..."
 echo "${GO_TOOLS}" | xargs -n 1 go install
