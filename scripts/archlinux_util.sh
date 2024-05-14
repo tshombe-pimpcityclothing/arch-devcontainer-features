@@ -27,21 +27,40 @@
 # This script performs common checks and operations for Arch-based systems. It includes functions for checking
 # system requirements, adjusting directory permissions, managing packages, and more. It is intended to be used
 # as a utility helper for setting up and managing Arch Linux systems in devcontainer features.
-#
-# Environment Variables:
-#   _ARCH_VERBOSE_LOGGING: If set to "true", the script will output verbose log messages.
-#   _ARCH_DIR_PERMS_CHECKED: If set to "true", the script will skip the directory permissions checks.
-#   _ARCH_KEYRING_CHECKED: If set to "true", the script will skip the pacman keyring initialization.
-#   _ARCH_MIRRORLIST_UPDATED: If set to "true", the script will skip the mirrorlist update.
+
 #-----------------------------------------------------------------------------------------------------------------
 
 # Exit on error
 set -e
 
-_ARCH_DIR_PERMS_CHECKED="${_ARCH_DIR_PERMS_CHECKED:-false}"
-_ARCH_KEYRING_CHECKED="${_ARCH_KEYRING_CHECKED:-false}"
-_ARCH_VERBOSE_LOGGING="${_ARCH_VERBOSE_LOGGING:-false}"
-_ARCH_MIRRORLIST_UPDATED="${_ARCH_MIRRORLIST_UPDATED:-false}"
+_ARCH_STATE_FILE="/tmp/archlinux_util_state.json"
+
+# _set_and_persist Sets a variable in the script's environment and persists it to the state file.
+_set_and_persist() {
+    var_name=$1
+    var_value=$2
+    # Persist the variable to the state file
+    if [ -f "$_ARCH_STATE_FILE" ]; then
+        jq --arg key "$var_name" --arg value "$var_value" '. + {($key): $value}' "$_ARCH_STATE_FILE" \
+            >"tmp.$$.json" &&
+            mv "tmp.$$.json" "$_ARCH_STATE_FILE"
+    else
+        echo "{ \"$var_name\": \"$var_value\" }" | jq '.' >"$_ARCH_STATE_FILE"
+    fi
+}
+
+# _get_value Gets a value from the state file.
+_get_value() {
+    var_name=$1
+    if [ -f "$_ARCH_STATE_FILE" ]; then
+        value=$(jq -r --arg key "$var_name" '.[$key]' "$_ARCH_STATE_FILE" 2>/dev/null)
+        echo "$value"
+    else
+        # create the state file if it doesn't exist
+        touch "$_ARCH_STATE_FILE"
+        echo ""
+    fi
+}
 
 # Echo message
 _CYAN='\033[1;36m'
@@ -53,13 +72,7 @@ _NC='\033[0m' # No color
 echo_msg() {
     message=$1
     script_path=$(realpath "$0")
-
-    if [ "$_ARCH_VERBOSE_LOGGING" = "true" ]; then
-        timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-        printf "[%b%s%b] [%b%s%b] %s\n" "$_CYAN" "$script_path" "$_NC" "$_BLUE" "$timestamp" "$_NC" "$message"
-    else
-        printf "[%b%s%b] %s\n" "$_CYAN" "$script_path" "$_NC" "$message"
-    fi
+    printf "[%b%s%b] %s\n" "$_CYAN" "$script_path" "$_NC" "$message"
 }
 
 # echo_ok Outputs a success message.
@@ -101,11 +114,11 @@ check_pacman() {
     echo_ok "Pacman is installed."
 }
 
-# adjust_dir_permissions Adjusts directory permissions to secure the system.
+# _adjust_dir_permissions Adjusts directory permissions to secure the system.
 # This function is idempotent
-# Usage: adjust_dir_permissions
-adjust_dir_permissions() {
-    if [ "$_ARCH_DIR_PERMS_CHECKED" = false ]; then
+# Usage: _adjust_dir_permissions
+_adjust_dir_permissions() {
+    if [ "$(_get_value _ARCH_DIR_PERMS_CHECKED)" != "true" ]; then
         echo_msg "Adjusting directory permissions..."
         if [ "$(stat -c %a /srv/ftp)" != "555" ]; then
             chmod 555 /srv/ftp
@@ -113,15 +126,15 @@ adjust_dir_permissions() {
         if [ "$(stat -c %a /usr/share/polkit-1/rules.d/)" != "755" ]; then
             chmod 755 /usr/share/polkit-1/rules.d/
         fi
-        export _ARCH_DIR_PERMS_CHECKED=true
+        _set_and_persist "_ARCH_DIR_PERMS_CHECKED" "true"
         echo_ok "Directory permissions adjusted."
     fi
 }
 
-# refresh_and_sort_mirrors Refreshes the package lists and sorts the mirrors by speed.
-# Usage: refresh_and_sort_mirrors
-refresh_and_sort_mirrors() {
-    if [ "$_ARCH_MIRRORLIST_UPDATED" = true ]; then
+# _refresh_and_sort_mirrors Refreshes the package lists and sorts the mirrors by speed.
+# Usage: _refresh_and_sort_mirrors
+_refresh_and_sort_mirrors() {
+    if [ "$(_get_value _ARCH_MIRRORLIST_UPDATED)" = "true" ]; then
         return
     fi
     echo_msg "Refreshing package lists and sorting mirrors by speed..."
@@ -142,18 +155,18 @@ refresh_and_sort_mirrors() {
     # Refresh the package lists
     pacman -Sy
     echo_ok "Package lists refreshed and mirrors sorted by speed."
-    export _ARCH_MIRRORLIST_UPDATED=true
+    _set_and_persist "_ARCH_MIRRORLIST_UPDATED" "true"
 }
 
-# init_pacman_keyring Initializes the pacman keyring and upgrades the system.
+# _init_pacman_keyring Initializes the pacman keyring and upgrades the system.
 # This function is idempotent
-# Usage: init_pacman_keyring
-init_pacman_keyring() {
-    if [ "$_ARCH_KEYRING_CHECKED" = false ]; then
+# Usage: _init_pacman_keyring
+_init_pacman_keyring() {
+    if [ "$(_get_value _ARCH_KEYRING_CHECKED)" != "true" ]; then
         echo_msg "Initializing pacman keyring..."
         if pacman-key --init && pacman-key --populate archlinux; then
             echo_ok "Pacman keyring initialized."
-            export _ARCH_KEYRING_CHECKED=true
+            _set_and_persist "_ARCH_KEYRING_CHECKED" "true"
         else
             echo_msg "ERROR. Pacman keyring initialization failed."
             exit 1
@@ -171,9 +184,9 @@ init_pacman_keyring() {
 # Example: check_and_install_packages coreutils git
 check_and_install_packages() {
 
-    adjust_dir_permissions
-    refresh_and_sort_mirrors
-    init_pacman_keyring
+    _adjust_dir_permissions
+    _refresh_and_sort_mirrors
+    _init_pacman_keyring
 
     echo_msg "Installing and updating packages ($*)..."
     if ! pacman -Syu --needed --noconfirm --disable-download-timeout "$@"; then
