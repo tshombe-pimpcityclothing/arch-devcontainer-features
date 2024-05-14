@@ -15,7 +15,7 @@
             }
         }
     },
-    "installKo": {
+    "install_ko": {
         "image": "archlinux:latest",
         "features": {
             "go": {
@@ -23,7 +23,7 @@
             }
         }
     },
-    "installYaegi": {
+    "install_yaegi": {
         "image": "archlinux:latest",
         "features": {
             "go": {
