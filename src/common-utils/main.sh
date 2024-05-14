@@ -36,7 +36,8 @@ if [ ! -f "$UTIL_SCRIPT" ]; then
 fi
 
 # Source the utility script
-# shellcheck disable=SC1090
+# shellcheck disable=SC1091
+# shellcheck source=scripts/archlinux_util.sh
 . "$UTIL_SCRIPT"
 
 # Arch Linux packages
@@ -78,7 +79,6 @@ install_arch_packages() {
             "strace"
             "man-pages"
             "systemd-sysvcompat"
-            "zsh-completions"
             "diffutils"
         )
 
@@ -102,7 +102,7 @@ install_arch_packages() {
 
     # Install zsh (and recommended packages) if needed
     if [ "${INSTALL_ZSH}" = "true" ] && ! type zsh >/dev/null 2>&1; then
-        check_and_install_packages "zsh"
+        check_and_install_packages zsh zsh-completions
     fi
 
     PACKAGES_ALREADY_INSTALLED="true"
