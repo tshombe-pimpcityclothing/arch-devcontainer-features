@@ -20,6 +20,8 @@ Installs Go and common Go utilities.
 | installGox | Whether to install gox, a tool for Go cross compilation that parallelizes builds for multiple platforms (https://github.com/mitchellh/gox). | boolean | false |
 | installKo | Whether to install ko, a container image builder for Go applications (https://github.com/ko-build/ko). | boolean | false |
 | installYaegi | Whether to install Yaegi, a Go interpreter that includes the yaegi command-line interpreter/REPL (https://github.com/traefik/yaegi). | boolean | false |
+| installAir | Whether to install Air, a live reload tool for Go applications (https://github.com/cosmtrek/air). | boolean | false |
+| installCobraCli | Whether to install Cobra CLI, a library for creating powerful modern CLI applications (https://github.com/spf13/cobra-cli/blob/main/README.md). | boolean | false |
 
 ## Customizations
 
