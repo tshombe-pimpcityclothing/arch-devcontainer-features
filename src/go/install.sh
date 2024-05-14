@@ -59,7 +59,7 @@ check_pacman
 
 # Install Go
 # go-tools: https://gitlab.archlinux.org/archlinux/packaging/packages/go-tools/-/blob/main/PKGBUILD?ref_type=heads
-check_and_install_packages go go-tools delve
+check_and_install_packages go go-tools delve which
 if [ "$INSTALL_GO_RELEASER" = "true" ]; then
     check_and_install_packages goreleaser
 fi
