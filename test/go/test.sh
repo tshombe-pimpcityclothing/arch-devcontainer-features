@@ -9,6 +9,8 @@ source dev-container-features-test-lib
 # go
 check "version" go version
 
+# Tools with versions
+
 # gopls
 check "gopls version" gopls version
 check "gopls is installed at correct path" bash -c "which gopls | grep /go/bin/gopls"
@@ -25,32 +27,19 @@ check "staticcheck is installed at correct path" bash -c "which staticcheck | gr
 check "revive version" revive --version
 check "revive is installed at correct path" bash -c "which revive | grep /go/bin/revive"
 
-# goimports-reviser
-check "goimports-reviser is installed at correct path" bash -c "which goimports-reviser | grep /go/bin/goimports-reviser"
-
-# golines
-check "golines is installed at correct path" bash -c "which golines | grep /go/bin/golines"
-
-# gomodifytags
-check "gomodifytags is installed at correct path" bash -c "which gomodifytags | grep /go/bin/gomodifytags"
-
-# gotests
-check "gotests is installed at correct path" bash -c "which gotests | grep /go/bin/gotests"
-
-# impl
-check "impl is installed at correct path" bash -c "which impl | grep /go/bin/impl"
-
-# golint
-check "golint is installed at correct path" bash -c "which golint | grep /go/bin/golint"
-
-# goplay
-check "goplay is installed at correct path" bash -c "which goplay | grep /go/bin/goplay"
-
-# air
-check "air is installed at correct path" bash -c "which air | grep /go/bin/air"
-
-# cobra-cli
-check "cobra-cli is installed at correct path" bash -c "which cobra-cli | grep /go/bin/cobra-cli"
+# Tools without versions
+_gotools=(
+    "goimports-reviser"
+    "golines"
+    "gomodifytags"
+    "gotests"
+    "impl"
+    "golint"
+    "goplay"
+)
+for tool in "${_gotools[@]}"; do
+    check "$tool is installed at correct path" bash -c "which $tool | grep /go/bin/$tool"
+done
 
 # Report result
 reportResults

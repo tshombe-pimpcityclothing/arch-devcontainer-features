@@ -1,4 +1,20 @@
 {
+    "install_air": {
+        "image": "archlinux:latest",
+        "features": {
+            "go": {
+                "installAir": true
+            }
+        }
+    },
+    "install_cobra_cli": {
+        "image": "archlinux:latest",
+        "features": {
+            "go": {
+                "installCobraCli": true
+            }
+        }
+    },
     "install_go_releaser": {
         "image": "archlinux:latest",
         "features": {
