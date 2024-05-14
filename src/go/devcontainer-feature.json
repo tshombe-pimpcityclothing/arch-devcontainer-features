@@ -1,0 +1,66 @@
+{
+    "id": "go",
+    "version": "0.1.0",
+    "name": "Go",
+    "documentationURL": "https://github.com/bartventer/arch-devcontainer-features/tree/main/src/go",
+    "licenseURL": "https://github.com/bartventer/arch-devcontainer-features/blob/main/LICENSE",
+    "description": "Installs Go and common Go utilities.",
+    "options": {
+        "golangciLintVersion": {
+            "type": "string",
+            "default": "latest",
+            "description": "Version of golangci-lint to install (https://github.com/golangci/golangci-lint/releases).",
+            "proposals": [
+                "latest",
+                "v1.58.1"
+            ]
+        },
+        "installGoReleaser": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to install GoReleaser (https://goreleaser.com/)."
+        },
+        "installGox": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to install gox, a tool for Go cross compilation that parallelizes builds for multiple platforms (https://github.com/mitchellh/gox)."
+        },
+        "installKo": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to install ko, a container image builder for Go applications (https://github.com/ko-build/ko)."
+        },
+        "installYaegi": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to install Yaegi, a Go interpreter that includes the yaegi command-line interpreter/REPL (https://github.com/traefik/yaegi)."
+        }
+    },
+    "init": true,
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "golang.Go"
+            ]
+        }
+    },
+    "capAdd": [
+        "SYS_PTRACE"
+    ],
+    "securityOpt": [
+        "seccomp=unconfined"
+    ],
+    "installsAfter": [
+        "ghcr.io/bartventer/arch-devcontainer-features/common-utils"
+    ],
+    "keywords": [
+        "arch linux",
+        "go",
+        "golang",
+        "golangci-lint",
+        "goreleaser",
+        "gox",
+        "ko",
+        "yaegi"
+    ]
+}
