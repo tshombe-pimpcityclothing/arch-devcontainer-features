@@ -49,8 +49,30 @@
     "init": true,
     "customizations": {
         "vscode": {
+            "settings": {
+                // https://github.com/golang/vscode-go/wiki/settings
+                // https://github.com/golang/vscode-go/wiki/advanced
+                // https://golangci-lint.run/welcome/integrations/#go-for-visual-studio-code
+                "go.lintTool": "golangci-lint",
+                "go.lintFlags": [
+                    "--fast",
+                    "--fix"
+                ],
+                "gopls": {
+                    "ui.codelenses": {
+                        // https://github.com/golang/tools/blob/master/gopls/doc/settings.md#code-lenses
+                        "gc_details": true,
+                        "run_govulncheck": true
+                    },
+                    // Better syntax highlighting
+                    "ui.semanticTokens": true
+                }
+            },
             "extensions": [
-                "golang.Go"
+                "golang.Go",
+                "766b.go-outliner",
+                "jinliming2.vscode-go-template",
+                "premparihar.gotestexplorer"
             ]
         }
     },

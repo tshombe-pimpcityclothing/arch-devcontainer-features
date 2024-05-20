@@ -111,7 +111,8 @@ GO_TOOLS="\
     github.com/cweill/gotests/gotests@latest \
     github.com/josharian/impl@latest \
     golang.org/x/lint/golint@latest \
-    github.com/haya14busa/goplay/cmd/goplay@latest"
+    github.com/haya14busa/goplay/cmd/goplay@latest \
+    github.com/766b/go-outliner@latest"
 
 # Add Air to the list of Go tools
 if [ "$INSTALL_AIR" = "true" ]; then
