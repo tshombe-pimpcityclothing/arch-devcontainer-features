@@ -28,6 +28,9 @@ Installs Go and common Go utilities.
 ### VS Code Extensions
 
 - `golang.Go`
+- `766b.go-outliner`
+- `jinliming2.vscode-go-template`
+- `premparihar.gotestexplorer`
 
 ## OS Support
 
