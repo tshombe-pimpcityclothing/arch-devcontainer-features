@@ -35,6 +35,29 @@ INSTALL_YAEGI=${INSTALLYAEGI:-"false"}
 INSTALL_AIR=${INSTALLAIR:-"false"}
 INSTALL_COBRA_CLI=${INSTALLCOBRACLI:-"false"}
 
+# revise_golangci_version Revises the GolangCI-Lint version to install.
+# Arguments:
+#   $1 - The GolangCI-Lint version to revise.
+# Returns:
+#   The revised GolangCI-Lint version.
+revise_golangci_version() {
+    version="$1"
+    case "${version}" in
+    latest) echo "latest" && return ;;
+    [0-9]*) version="v${version}" ;;
+    v*) ;;                      # if version starts with 'v', do nothing
+    *) version="v${version}" ;; # for all other cases, prepend 'v'
+    esac
+    url="https://api.github.com/repos/golangci/golangci-lint/releases/tags/$version"
+    if ! curl --silent --fail "$url" >/dev/null; then
+        echo "
+Error: The GolangCI-Lint version '${version}' does not exist.
+See https://github.com/golangci/golangci-lint/releases for available versions."
+        exit 1
+    fi
+    echo "${version}"
+}
+
 UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
 
 # Check if the utility script exists
@@ -79,7 +102,7 @@ check_and_install_packages $PACKAGES
 
 GO_TOOLS="\
     golang.org/x/tools/gopls@latest \
-    github.com/golangci/golangci-lint/cmd/golangci-lint@${GOLANGCI_LINT_VERSION} \
+    github.com/golangci/golangci-lint/cmd/golangci-lint@$(revise_golangci_version "$GOLANGCI_LINT_VERSION") \
     honnef.co/go/tools/cmd/staticcheck@latest \
     github.com/mgechev/revive@latest \
     github.com/incu6us/goimports-reviser/v2@latest \
