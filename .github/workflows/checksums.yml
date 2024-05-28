@@ -3,12 +3,11 @@ on:
     workflow_dispatch:
     release:
         types:
-            - created
+            - published
 
 jobs:
     checksums:
         name: 'Checksums'
-        if: ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
         runs-on: ubuntu-latest
         permissions:
             contents: write
