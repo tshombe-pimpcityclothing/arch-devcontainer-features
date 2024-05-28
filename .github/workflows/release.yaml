@@ -1,15 +1,14 @@
 name: 'Release'
 on:
-    pull_request:
-        types: [closed]
-        branches: [main]
-        paths: ['src/**']
     workflow_dispatch:
+    push:
+        tags:
+            - 'v*'
 
 jobs:
     deploy:
         name: 'Deploy'
-        if: ${{ github.event.pull_request.merged == true && github.event.pull_request.user.login == vars.GH_ACTIONS_USERNAME || github.event_name == 'workflow_dispatch' }}
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
         runs-on: ubuntu-latest
         permissions:
             contents: write
