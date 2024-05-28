@@ -43,7 +43,7 @@
         "image": "archlinux:latest",
         "remoteUser": "vscode",
         "features": {
-            "ghcr.io/bartventer/arch-devcontainer-features/common-utils:1": {},
+            "common-utils": {},
             "docker-in-docker": {
                 "dockerDefaultAddressPool": "base=192.168.0.0/16,size=24"
             }
@@ -61,7 +61,7 @@
         "image": "archlinux:latest",
         "remoteUser": "vscode",
         "features": {
-            "ghcr.io/bartventer/arch-devcontainer-features/common-utils:1": {},
+            "common-utils": {},
             "docker-in-docker": {}
         },
         "onCreateCommand": "docker ps && sleep 5s && docker ps"
