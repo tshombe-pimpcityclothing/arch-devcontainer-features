@@ -225,7 +225,7 @@ if [ ! -x "$_UTIL_SCRIPT" ]; then
         # Verify SHA256 and signature
         echo "::Verifying SHA256 and signature..."
         gpg --verify "$_UTIL_SCRIPT_SIG" "$_UTIL_SCRIPT_SHA256"
-        sed "s|scripts/archlinux_util.sh|$_UTIL_SCRIPT|" "$_UTIL_SCRIPT_SHA256" | sha256sum --check && echo "SHA256 verified." || exit 1
+        sed "s|./scripts/archlinux_util.sh|$_UTIL_SCRIPT|" "$_UTIL_SCRIPT_SHA256" | sha256sum --check && echo "SHA256 verified." || exit 1
         chmod +x "$_UTIL_SCRIPT"
         rm -f "$_UTIL_SCRIPT_SHA256" "$_UTIL_SCRIPT_SIG"
         unset _UTIL_SCRIPT_SHA256 _UTIL_SCRIPT_SIG

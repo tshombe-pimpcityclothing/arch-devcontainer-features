@@ -29,10 +29,9 @@ FEATURE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
 
 # Check if the utility script exists
-if [ ! -f "$UTIL_SCRIPT" ]; then
-    echo "Cloning archlinux_util.sh from GitHub to $UTIL_SCRIPT"
-    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/arch-devcontainer-features/main/scripts/archlinux_util.sh
-    chmod +x "$UTIL_SCRIPT"
+if [ ! -x "$UTIL_SCRIPT" ]; then
+    echo "Error: Required utility script not found: $UTIL_SCRIPT"
+    exit 1
 fi
 
 # Source the utility script
