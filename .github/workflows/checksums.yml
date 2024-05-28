@@ -51,6 +51,10 @@ jobs:
                   echo "🚀 Uploading checksums..."
                   cd $(dirname ${{ env.ARCH_UTIL_SCRIPT_PATH }})
                   for file in $(ls *.sha256 *.sha256.asc); do
+                      echo ":: Uploading $file..."
+                      gh release delete-asset ${{ env.LATEST_TAG }} $file || true
                       gh release upload ${{ env.LATEST_TAG }} $file
+                      echo "OK"
+                      echo
                   done
                   echo "✅ Checksums uploaded."
