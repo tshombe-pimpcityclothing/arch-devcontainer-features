@@ -1,0 +1,56 @@
+name: 'Checksums'
+on:
+    workflow_dispatch:
+    release:
+        types:
+            - published
+
+jobs:
+    checksums:
+        name: 'Checksums'
+        if: ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
+            packages: write
+        env:
+            ARCH_UTIL_SCRIPT_PATH: './scripts/archlinux_util.sh'
+        steps:
+            - uses: actions/checkout@v4
+            - name: Import GPG key
+              uses: crazy-max/ghaction-import-gpg@v6
+              with:
+                  gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+                  passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+            - name: Generate and sign checksum
+              run: |
+                  echo "🚀 Generating checksums..."
+                  sha256sum ${{ env.ARCH_UTIL_SCRIPT_PATH }} > ${{ env.ARCH_UTIL_SCRIPT_PATH }}.sha256
+                  gpg --detach-sign --armor ${{ env.ARCH_UTIL_SCRIPT_PATH }}.sha256
+                  echo "✅ Checksums generated."
+
+            - name: Get release
+              id: get_release
+              uses: actions/github-script@v7
+              with:
+                  result-encoding: string
+                  script: |
+                      console.log('🚀 Getting release...');
+                      const releases = await github.repos.listReleases({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                      });
+                      const release = releases.data.find(release => release.tag_name === context.ref);
+                      console.log('✅ Release found:', release.upload_url);
+                      return release.upload_url;
+
+            - name: Upload checksum
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  echo "🚀 Uploading checksums..."
+                  gh release upload ${{ steps.get_release.outputs.result }} ${{ env.ARCH_UTIL_SCRIPT_PATH }}.sha256.asc
+                  gh release upload ${{ steps.get_release.outputs.result }} ${{ env.ARCH_UTIL_SCRIPT_PATH }}.sha256
+                  echo "✅ Checksums uploaded."
