@@ -75,6 +75,9 @@
     "installsAfter": [
         "ghcr.io/bartventer/arch-devcontainer-features/common-utils"
     ],
+    "legacyIds": [
+        "devcontainer-featurers/docker-in-docker"
+    ],
     "keywords": [
         "arch linux",
         "docker",

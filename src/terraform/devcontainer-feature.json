@@ -64,6 +64,9 @@
     "installsAfter": [
         "ghcr.io/bartventer/arch-devcontainer-features/common-utils"
     ],
+    "legacyIds": [
+        "devcontainer-featurers/terraform"
+    ],
     "keywords": [
         "arch linux",
         "terraform",

@@ -65,6 +65,9 @@
             "description": "Enter GID for non-root user"
         }
     },
+    "legacyIds": [
+        "devcontainer-featurers/common-utils"
+    ],
     "keywords": [
         "arch linux",
         "zsh",
