@@ -7,9 +7,9 @@ set -e
 source dev-container-features-test-lib
 
 # Definition specific tests
-check "version" gcloud --version
-check "version" gsutil --version
-check "version" bq --version
+check "gcloud version" gcloud --version
+check "gsutil version" gsutil --version
+check "gsutil version" bq version
 
 # Report result
 reportResults
