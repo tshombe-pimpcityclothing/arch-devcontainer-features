@@ -33,6 +33,7 @@ This repository contains a _collection_ of features curated by [@bartventer](htt
 | [aws-cli](src/aws-cli/README.md)                                   | Installs the AWS CLI along with needed dependencies.                                                    |
 | [docker-in-docker](src/docker-in-docker/README.md)                 | Installs Docker and Docker Compose in a Docker container.                                               |
 | [docker-outside-of-docker](src/docker-outside-of-docker/README.md) | Re-uses the host docker socket, adding the Docker CLI to a container.                                   |
+| [gcloud-cli](src/gcloud-cli/README.md)                             | Installs the Google Cloud CLI along with needed dependencies.                                           |
 | [go](src/go/README.md)                                             | Installs the Go programming language and common Go utilities.                                           |
 | [terraform](src/terraform/README.md)                               | Installs the Terraform CLI and optionally Terragrunt and TFLint.                                        |
 
