@@ -80,6 +80,7 @@ install_arch_packages() {
             "man-pages"
             "systemd-sysvcompat"
             "diffutils"
+            "github-cli"
         )
 
         # Include git if not already installed (may be more recent than distro version)

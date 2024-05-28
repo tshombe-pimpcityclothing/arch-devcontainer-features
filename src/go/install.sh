@@ -58,19 +58,45 @@ See https://github.com/golangci/golangci-lint/releases for available versions."
     echo "${version}"
 }
 
-UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
+# ***********************
+# ** Utility functions **
+# ***********************
 
-# Check if the utility script exists
-if [ ! -f "$UTIL_SCRIPT" ]; then
-    echo "Cloning archlinux_util.sh from GitHub to $UTIL_SCRIPT"
-    curl -o "$UTIL_SCRIPT" https://raw.githubusercontent.com/bartventer/arch-devcontainer-features/main/scripts/archlinux_util.sh
-    chmod +x "$UTIL_SCRIPT"
+_UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
+if [ ! -x "$_UTIL_SCRIPT" ]; then
+    (
+        echo ":: Downloading utility script..."
+        _UTIL_SCRIPT_SHA256="$_UTIL_SCRIPT.sha256"
+        _UTIL_SCRIPT_SIG="$_UTIL_SCRIPT.sha256.asc"
+        curl -sSL -o "$_UTIL_SCRIPT" "https://raw.githubusercontent.com/bartventer/arch-devcontainer-features/main/scripts/archlinux_util.sh"
+        _TAG_NAME=$(curl --silent "https://api.github.com/repos/bartventer/arch-devcontainer-features/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        _BASE_URL="https://github.com/bartventer/arch-devcontainer-features/releases/download/$_TAG_NAME"
+        curl -sSL -o "$_UTIL_SCRIPT_SHA256" "$_BASE_URL/archlinux_util.sh.sha256"
+        curl -sSL -o "$_UTIL_SCRIPT_SIG" "$_BASE_URL/archlinux_util.sh.sha256.asc"
+        unset _TAG_NAME _BASE_URL
+        echo "OK"
+
+        # Import GPG key
+        echo ":: Importing GPG key..."
+        _UTIL_SCRIPT_GPG_KEY=E0AB6303ACAA7621EABF6D42E3730B880D82141A
+        gpg --keyserver keyserver.ubuntu.com --recv-keys "$_UTIL_SCRIPT_GPG_KEY"
+        unset _UTIL_SCRIPT_GPG_KEY
+        echo "OK"
+
+        # Verify SHA256 and signature
+        echo "::Verifying SHA256 and signature..."
+        gpg --verify "$_UTIL_SCRIPT_SIG" "$_UTIL_SCRIPT_SHA256"
+        sed "s|scripts/archlinux_util.sh|$_UTIL_SCRIPT|" "$_UTIL_SCRIPT_SHA256" | sha256sum --check && echo "SHA256 verified." || exit 1
+        chmod +x "$_UTIL_SCRIPT"
+        rm -f "$_UTIL_SCRIPT_SHA256" "$_UTIL_SCRIPT_SIG"
+        unset _UTIL_SCRIPT_SHA256 _UTIL_SCRIPT_SIG
+        echo "OK"
+    )
 fi
 
-# Source the utility script
 # shellcheck disable=SC1091
 # shellcheck source=scripts/archlinux_util.sh
-. "$UTIL_SCRIPT"
+. "$_UTIL_SCRIPT"
 
 # Source /etc/os-release to get OS info
 # shellcheck disable=SC1091
