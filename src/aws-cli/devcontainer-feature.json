@@ -42,7 +42,7 @@
         "ghcr.io/bartventer/arch-devcontainer-features/common-utils"
     ],
     "legacyIds": [
-        "devcontainer-featurers/aws-cli"
+        "devcontainer-features/aws-cli"
     ],
     "keywords": [
         "arch linux",
