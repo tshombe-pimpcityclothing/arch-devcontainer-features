@@ -78,15 +78,16 @@ if [ ! -x "$_UTIL_SCRIPT" ]; then
 
         # Import GPG key
         echo ":: Importing GPG key..."
-        _UTIL_SCRIPT_GPG_KEY=E0AB6303ACAA7621EABF6D42E3730B880D82141A
-        gpg --keyserver keyserver.ubuntu.com --recv-keys "$_UTIL_SCRIPT_GPG_KEY"
-        unset _UTIL_SCRIPT_GPG_KEY
+        _REPO_GPG_KEY=E0AB6303ACAA7621EABF6D42E3730B880D82141A
+        gpg --keyserver keyserver.ubuntu.com --recv-keys "$_REPO_GPG_KEY"
+        unset _REPO_GPG_KEY
         echo "OK"
 
         # Verify SHA256 and signature
         echo "::Verifying SHA256 and signature..."
+        cd "$(dirname "$_UTIL_SCRIPT")"
         gpg --verify "$_UTIL_SCRIPT_SIG" "$_UTIL_SCRIPT_SHA256"
-        awk -v util_script="$_UTIL_SCRIPT" '{$2=util_script; print}' "$_UTIL_SCRIPT_SHA256" | sha256sum --check && echo "SHA256 verified." || exit 1
+        sha256sum -c "$_UTIL_SCRIPT_SHA256"
         chmod +x "$_UTIL_SCRIPT"
         rm -f "$_UTIL_SCRIPT_SHA256" "$_UTIL_SCRIPT_SIG"
         unset _UTIL_SCRIPT_SHA256 _UTIL_SCRIPT_SIG
