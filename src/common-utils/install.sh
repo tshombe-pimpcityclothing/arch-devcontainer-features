@@ -49,6 +49,7 @@ if [ ! -x "$_UTIL_SCRIPT" ]; then
         unset _TAG_NAME _BASE_URL
         echo "OK"
 
+        set -x
         # Import GPG key
         echo ":: Importing GPG key..."
         _REPO_GPG_KEY=E0AB6303ACAA7621EABF6D42E3730B880D82141A
@@ -65,6 +66,7 @@ if [ ! -x "$_UTIL_SCRIPT" ]; then
         rm -f "$_UTIL_SCRIPT_SHA256" "$_UTIL_SCRIPT_SIG"
         unset _UTIL_SCRIPT_SHA256 _UTIL_SCRIPT_SIG
         echo "OK"
+        set +x
     )
 fi
 
