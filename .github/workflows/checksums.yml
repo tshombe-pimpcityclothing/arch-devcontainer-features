@@ -36,15 +36,15 @@ jobs:
               uses: actions/github-script@v7
               with:
                   result-encoding: string
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       console.log('🚀 Getting release...');
-                      const releases = await github.rest.repos.listReleases({
+                      const release = await github.rest.repos.getLatestRelease({
                           owner: context.repo.owner,
                           repo: context.repo.repo,
                       });
-                      const release = releases.data.find(release => release.tag_name === context.ref);
-                      console.log('✅ Release found:', release.upload_url);
-                      return release.upload_url;
+                      console.log('✅ Release found:', release.data.upload_url);
+                      return release.data.upload_url;
 
             - name: Upload checksum
               env:
