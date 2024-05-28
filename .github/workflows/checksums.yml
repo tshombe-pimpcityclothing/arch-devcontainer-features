@@ -29,8 +29,9 @@ jobs:
             - name: Generate and sign checksum
               run: |
                   echo "🚀 Generating checksums..."
-                  sha256sum ${{ env.ARCH_UTIL_SCRIPT_PATH }} > ${{ env.ARCH_UTIL_SCRIPT_PATH }}.sha256
-                  gpg --detach-sign --armor ${{ env.ARCH_UTIL_SCRIPT_PATH }}.sha256
+                  cd $(dirname ${{ env.ARCH_UTIL_SCRIPT_PATH }})
+                  sha256sum $(basename ${{ env.ARCH_UTIL_SCRIPT_PATH }}) > $(basename ${{ env.ARCH_UTIL_SCRIPT_PATH }}).sha256
+                  gpg --detach-sign --armor $(basename ${{ env.ARCH_UTIL_SCRIPT_PATH }}).sha256
                   echo "✅ Checksums generated."
 
             - name: Get release
@@ -42,11 +43,14 @@ jobs:
                   echo "✅ Release retrieved."
 
             - name: Upload checksum
+              shell: bash
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   LATEST_TAG: ${{ steps.get_release.outputs.result }}
               run: |
                   echo "🚀 Uploading checksums..."
-                  gh release upload ${{ env.LATEST_TAG }} ${{ env.ARCH_UTIL_SCRIPT_PATH }}.sha256.asc
-                  gh release upload ${{ env.LATEST_TAG }} ${{ env.ARCH_UTIL_SCRIPT_PATH }}.sha256
+                  cd $(dirname ${{ env.ARCH_UTIL_SCRIPT_PATH }})
+                  for file in $(ls *.sha256 *.sha256.asc); do
+                      gh release upload ${{ env.LATEST_TAG }} $file
+                  done
                   echo "✅ Checksums uploaded."
