@@ -3,7 +3,7 @@ on:
     workflow_dispatch:
     release:
         types:
-            - published
+            - created
 
 jobs:
     checksums:
@@ -38,7 +38,7 @@ jobs:
                   result-encoding: string
                   script: |
                       console.log('🚀 Getting release...');
-                      const releases = await github.repos.listReleases({
+                      const releases = await github.rest.repos.listReleases({
                           owner: context.repo.owner,
                           repo: context.repo.repo,
                       });
