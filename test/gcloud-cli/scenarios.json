@@ -1,0 +1,10 @@
+{
+    "install_gcloud_cli_specific": {
+        "image": "archlinux:latest",
+        "features": {
+            "gcloud-cli": {
+                "version": "477.0.0"
+            }
+        }
+    }
+}
