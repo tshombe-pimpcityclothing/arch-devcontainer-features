@@ -18,6 +18,7 @@ jobs:
                     - ${{ vars.FEATURE_DOCKER_OUTSIDE_OF_DOCKER}}
                     - ${{ vars.FEATURE_TERRAFORM}}
                     - ${{ vars.FEATURE_GO}}
+                    - ${{ vars.FEATURE_GCLOUD_CLI}}
                 base-image:
                     - archlinux:latest
                     - archlinux:base
@@ -44,6 +45,7 @@ jobs:
                     - ${{ vars.FEATURE_DOCKER_OUTSIDE_OF_DOCKER}}
                     - ${{ vars.FEATURE_TERRAFORM}}
                     - ${{ vars.FEATURE_GO}}
+                    - ${{ vars.FEATURE_GCLOUD_CLI}}
         steps:
             - uses: actions/checkout@v4
 
