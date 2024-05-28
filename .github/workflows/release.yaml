@@ -6,9 +6,8 @@ on:
             - 'v*'
 
 jobs:
-    deploy:
-        name: 'Deploy'
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
+    release:
+        name: 'Release'
         runs-on: ubuntu-latest
         permissions:
             contents: write
