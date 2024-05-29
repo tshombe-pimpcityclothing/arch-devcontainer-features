@@ -1,5 +1,3 @@
-### **IMPORTANT NOTE**
-- **Ids used to publish this Feature in the past - 'devcontainer-features/aws-cli'**
 
 # AWS CLI (aws-cli)
 

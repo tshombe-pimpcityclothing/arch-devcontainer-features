@@ -1,5 +1,3 @@
-### **IMPORTANT NOTE**
-- **Ids used to publish this Feature in the past - 'devcontainer-features/docker-outside-of-docker'**
 
 # Docker (docker-outside-of-docker) (docker-outside-of-docker)
 
