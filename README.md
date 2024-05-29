@@ -29,8 +29,9 @@ This repository contains a _collection_ of features curated by [@bartventer](htt
 
 | Feature                                                            | Description                                                                                             |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| [common-utils](src/common-utils/README.md)                         | Installs a set of common command line utilities, Oh My Zsh!, and sets up a non-root user on Arch Linux. |
+| [azure-cli](src/azure-cli/README.md)                               | Installs the Azure CLI along with needed dependencies.                                                  |
 | [aws-cli](src/aws-cli/README.md)                                   | Installs the AWS CLI along with needed dependencies.                                                    |
+| [common-utils](src/common-utils/README.md)                         | Installs a set of common command line utilities, Oh My Zsh!, and sets up a non-root user on Arch Linux. |
 | [docker-in-docker](src/docker-in-docker/README.md)                 | Installs Docker and Docker Compose in a Docker container.                                               |
 | [docker-outside-of-docker](src/docker-outside-of-docker/README.md) | Re-uses the host docker socket, adding the Docker CLI to a container.                                   |
 | [gcloud-cli](src/gcloud-cli/README.md)                             | Installs the Google Cloud CLI along with needed dependencies.                                           |
