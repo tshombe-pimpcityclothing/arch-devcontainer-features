@@ -19,6 +19,7 @@ jobs:
                     - ${{ vars.FEATURE_TERRAFORM}}
                     - ${{ vars.FEATURE_GO}}
                     - ${{ vars.FEATURE_GCLOUD_CLI}}
+                    - ${{ vars.FEATURE_AZURE_CLI}}
                 base-image:
                     - archlinux:latest
                     - archlinux:base
@@ -46,6 +47,7 @@ jobs:
                     - ${{ vars.FEATURE_TERRAFORM}}
                     - ${{ vars.FEATURE_GO}}
                     - ${{ vars.FEATURE_GCLOUD_CLI}}
+                    - ${{ vars.FEATURE_AZURE_CLI}}
         steps:
             - uses: actions/checkout@v4
 
