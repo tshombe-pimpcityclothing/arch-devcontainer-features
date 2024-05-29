@@ -41,9 +41,6 @@
     "installsAfter": [
         "ghcr.io/bartventer/arch-devcontainer-features/common-utils"
     ],
-    "legacyIds": [
-        "devcontainer-features/aws-cli"
-    ],
     "keywords": [
         "arch linux",
         "amazon web services",
