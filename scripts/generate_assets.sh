@@ -8,9 +8,9 @@ set -euo pipefail
 _DIST_DIR="dist"
 _VERSION=""
 _PARAMS=""
+_ROOT="${GITHUB_WORKSPACE:-$(git rev-parse --show-toplevel)}"
 _REPOSITORY_NAME="$(basename "${GITHUB_REPOSITORY:-"$(git config --get remote.origin.url)"}" .git)"
 [[ -z "${_REPOSITORY_NAME}" ]] && echo "Error: Could not determine repository name" && exit 1
-_ROOT="${GITHUB_WORKSPACE:-$(git rev-parse --show-toplevel)}"
 
 while (("$#")); do
     case "$1" in
