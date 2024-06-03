@@ -40,8 +40,15 @@ done
 # Validations
 [[ -z "${_DIST_DIR:-}" ]] && echo "Error: --dist flag is required" && exit 1
 [[ -z "${_VERSION:-}" ]] && echo "Error: --version flag is required" && exit 1
+[[ "${_VERSION}" != v* ]] && _VERSION="v${_VERSION}"
 
-echo "ℹ️ Generating release assets in $_DIST_DIR"
+echo "
+ℹ️ Generating release assets:
+    - Repository: $_REPOSITORY_NAME
+    - Version: $_VERSION
+    - Dist directory: $_DIST_DIR
+    - Root directory: $_ROOT
+"
 
 # Create the dist directory if it doesn't exist
 mkdir -p "$_DIST_DIR"
@@ -69,7 +76,8 @@ echo "✔️ OK. All assets generated."
 # Prompt whether to upload the assets (if not running in CI)
 # This will replace the existing assets if they already exist
 [[ "${CI:-}" == "true" ]] && exit 0
-read -r -p "Do you want to upload the assets to the release? [y/N] " response
+echo "🚨 Do you want to upload the assets to the release ($_VERSION)? (y/N)"
+read -r response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     echo "🚀 Uploading assets to the release ($_VERSION)"
     for file in "$_DIST_DIR"/*; do
