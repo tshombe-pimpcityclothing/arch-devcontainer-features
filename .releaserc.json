@@ -11,6 +11,30 @@
     "plugins": [
         "@semantic-release/commit-analyzer",
         "@semantic-release/release-notes-generator",
-        "@semantic-release/github"
+        [
+            "@semantic-release/exec",
+            {
+                "prepareCmd": "./scripts/generate_assets.sh --dist dist --version ${nextRelease.version}"
+            }
+        ],
+        [
+            "@semantic-release/github",
+            {
+                "assets": [
+                    {
+                        "path": "dist/arch-devcontainer-features-${nextRelease.version}.tar.gz",
+                        "label": "Assets for v${nextRelease.version}"
+                    },
+                    {
+                        "path": "dist/checksums.txt",
+                        "label": "Checksums for v${nextRelease.version}"
+                    },
+                    {
+                        "path": "dist/checksums.txt.asc",
+                        "label": "Checksums for v${nextRelease.version} (signature)"
+                    }
+                ]
+            }
+        ]
     ]
 }
