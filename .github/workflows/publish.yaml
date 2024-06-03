@@ -1,0 +1,56 @@
+name: 'Publish'
+on:
+    workflow_dispatch:
+    pull_request:
+        types: [closed]
+        paths: ['src/**']
+        branches:
+            - main
+jobs:
+    publish:
+        name: 'Publish Features'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
+            packages: write
+        steps:
+            - uses: actions/checkout@v4
+            - name: 'Publish Features'
+              uses: devcontainers/action@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  publish-features: 'true'
+                  base-path-to-features: './src'
+                  generate-docs: 'true'
+
+            - name: Create PR for Documentation
+              id: push_image_info
+              shell: bash
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  set -e
+                  cleanup() {
+                    echo "🧹 Cleaning up..."
+                    git checkout -
+                    echo "✔️ OK. Cleaned up."
+                  }
+                  trap cleanup EXIT
+                  echo "🚀 Creating PR for documentation..."
+                  git config --global user.email ${{vars.GH_ACTIONS_USERNAME}}@users.noreply.github.com
+                  git config --global user.name ${{vars.GH_ACTIONS_USERNAME}}
+                  git config pull.rebase false
+                  branch=automated-documentation-update-$GITHUB_RUN_ID
+                  git checkout -b $branch
+                  _message='docs(src/all): Automated documentation update'
+                  git add */**/README.md
+                  git commit -m "$_message [skip ci]" || export NO_UPDATES=true
+                  if [ "$NO_UPDATES" != "true" ] ; then
+                      git push origin "$branch"
+                      gh pr create \
+                        --title "$_message" \
+                        --body ":robot: Automated documentation update" \
+                        --label "documentation"
+                  fi

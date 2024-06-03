@@ -1,56 +1,31 @@
 name: 'Release'
 on:
     workflow_dispatch:
-    pull_request:
-        types: [closed]
-        paths: ['src/**']
-        branches:
-            - main
+    workflow_run:
+        workflows: ['Tests']
+        types:
+            - completed
+
 jobs:
     release:
         name: 'Release'
+        if: github.event.workflow_run.conclusion == 'success'
         runs-on: ubuntu-latest
         permissions:
             contents: write
-            pull-requests: write
-            packages: write
+            issues: write
         steps:
             - uses: actions/checkout@v4
-            - name: 'Publish Features'
-              uses: devcontainers/action@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  publish-features: 'true'
-                  base-path-to-features: './src'
-                  generate-docs: 'true'
-
-            - name: Create PR for Documentation
-              id: push_image_info
-              shell: bash
+                  fetch-depth: 0
+            - name: Import GPG key
+              uses: crazy-max/ghaction-import-gpg@v6
+              with:
+                  gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+                  passphrase: ${{ secrets.GPG_PASSPHRASE }}
+            - name: 'Run semantic-release'
+              run: |
+                  yarn global add semantic-release@17 @semantic-release/exec
+                  semantic-release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  set -e
-                  cleanup() {
-                    echo "🧹 Cleaning up..."
-                    git checkout -
-                    echo "✔️ OK. Cleaned up."
-                  }
-                  trap cleanup EXIT
-                  echo "🚀 Creating PR for documentation..."
-                  git config --global user.email ${{vars.GH_ACTIONS_USERNAME}}@users.noreply.github.com
-                  git config --global user.name ${{vars.GH_ACTIONS_USERNAME}}
-                  git config pull.rebase false
-                  branch=automated-documentation-update-$GITHUB_RUN_ID
-                  git checkout -b $branch
-                  _message='docs(src/all): Automated documentation update'
-                  git add */**/README.md
-                  git commit -m "$_message [skip ci]" || export NO_UPDATES=true
-                  if [ "$NO_UPDATES" != "true" ] ; then
-                      git push origin "$branch"
-                      gh pr create \
-                        --title "$_message" \
-                        --body ":robot: Automated documentation update" \
-                        --label "documentation"
-                  fi

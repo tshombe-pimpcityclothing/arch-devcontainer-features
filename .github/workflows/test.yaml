@@ -80,7 +80,7 @@ jobs:
                   validate-only: 'true'
                   base-path-to-features: './src'
 
-    bump-images:
+    bump-version:
         needs: [validate]
         name: 'Create PR for Image Version'
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
@@ -100,27 +100,3 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GH_ACTIONS_USERNAME: ${{ vars.GH_ACTIONS_USERNAME }}
               run: make bump-version
-
-    semantic-release:
-        name: Semantic Release
-        needs: [bump-images]
-        if: github.event_name == 'push'
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-            issues: write
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
-            - name: Import GPG key
-              uses: crazy-max/ghaction-import-gpg@v6
-              with:
-                  gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-                  passphrase: ${{ secrets.GPG_PASSPHRASE }}
-            - name: 'Run semantic-release'
-              run: |
-                  yarn global add semantic-release@17
-                  semantic-release
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
