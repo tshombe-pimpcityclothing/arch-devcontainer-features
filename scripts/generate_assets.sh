@@ -54,7 +54,7 @@ echo "
 mkdir -p "$_DIST_DIR"
 
 # Create a tarball of the repository
-_FILENAME=$(basename "${_REPOSITORY_NAME}-${_VERSION}.tar.gz")
+_FILENAME=$(basename "${_REPOSITORY_NAME}.tar.gz")
 tar -czf "$_DIST_DIR/${_FILENAME}" --exclude="$_DIST_DIR" -C "$_ROOT" .
 
 # Generate checksum for the tarball
