@@ -65,3 +65,16 @@ ls -l "$_DIST_DIR"
 echo
 
 echo "✔️ OK. All assets generated."
+
+# Prompt whether to upload the assets (if not running in CI)
+# This will replace the existing assets if they already exist
+[[ "${CI:-}" == "true" ]] && exit 0
+read -r -p "Do you want to upload the assets to the release? [y/N] " response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    echo "🚀 Uploading assets to the release ($_VERSION)"
+    for file in "$_DIST_DIR"/*; do
+        gh release upload --clobber "$_VERSION" "$file"
+    done
+else
+    echo "🚫 Skipped uploading assets to the release ($_VERSION)"
+fi
