@@ -10,7 +10,7 @@
 # Set error handling
 set -e
 
-ENABLE_SHELL_COMPLETION=${ENABLECOMPLETION:-"true"}
+ENABLE_SHELL_COMPLETION=${ENABLESHELLCOMPLETION:-"true"}
 INSTALL_SAM=${INSTALLSAM:-"none"}
 SAM_VERSION=${SAMVERSION:-"latest"}
 
@@ -204,33 +204,40 @@ install_sam() {
 _UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
 if [ ! -x "$_UTIL_SCRIPT" ]; then
     (
-        echo ":: Downloading utility script..."
-        _UTIL_SCRIPT_SHA256="$_UTIL_SCRIPT.sha256"
-        _UTIL_SCRIPT_SIG="$_UTIL_SCRIPT.sha256.asc"
-        curl -sSL -o "$_UTIL_SCRIPT" "https://raw.githubusercontent.com/bartventer/arch-devcontainer-features/main/scripts/archlinux_util.sh"
+        _TMP_DIR=$(mktemp --directory --suffix=arch-devcontainer)
+        echo ":: Downloading release tar..."
         _TAG_NAME=$(curl --silent "https://api.github.com/repos/bartventer/arch-devcontainer-features/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         _BASE_URL="https://github.com/bartventer/arch-devcontainer-features/releases/download/$_TAG_NAME"
-        curl -sSL -o "$_UTIL_SCRIPT_SHA256" "$_BASE_URL/archlinux_util.sh.sha256"
-        curl -sSL -o "$_UTIL_SCRIPT_SIG" "$_BASE_URL/archlinux_util.sh.sha256.asc"
-        unset _TAG_NAME _BASE_URL
+        curl -sSL -o "$_TMP_DIR/release.tar.gz" "$_BASE_URL/arch-devcontainer-features-$_TAG_NAME.tar.gz"
+        curl -sSL -o "$_TMP_DIR/checksums.txt" "$_BASE_URL/checksums.txt"
+        curl -sSL -o "$_TMP_DIR/checksums.txt.asc" "$_BASE_URL/checksums.txt.asc"
         echo "OK"
 
-        # Import GPG key
         echo ":: Importing GPG key..."
         _REPO_GPG_KEY=E0AB6303ACAA7621EABF6D42E3730B880D82141A
         gpg --keyserver keyserver.ubuntu.com --recv-keys "$_REPO_GPG_KEY"
-        unset _REPO_GPG_KEY
         echo "OK"
 
-        # Verify SHA256 and signature
-        echo "::Verifying SHA256 and signature..."
-        cd "$(dirname "$_UTIL_SCRIPT")"
-        gpg --verify "$_UTIL_SCRIPT_SIG" "$_UTIL_SCRIPT_SHA256"
-        sha256sum -c "$_UTIL_SCRIPT_SHA256"
-        chmod +x "$_UTIL_SCRIPT"
-        rm -f "$_UTIL_SCRIPT_SHA256" "$_UTIL_SCRIPT_SIG"
-        unset _UTIL_SCRIPT_SHA256 _UTIL_SCRIPT_SIG
+        echo ":: Verifying checksums signature..."
+        cd "$_TMP_DIR"
+        gpg --verify checksums.txt.asc checksums.txt
         echo "OK"
+
+        echo ":: Verifying checksums..."
+        sha256sum -c checksums.txt
+        echo "OK"
+
+        echo ":: Extracting tar..."
+        tar xzf release.tar.gz
+        echo "OK"
+
+        echo ":: Moving scripts..."
+        mv ./scripts/archlinux_util.sh "$_UTIL_SCRIPT"
+        chmod +x "$_UTIL_SCRIPT"
+        echo "OK"
+
+        # Clean up
+        rm -rf "$_TMP_DIR"
     )
 fi
 

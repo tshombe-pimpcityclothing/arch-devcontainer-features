@@ -58,6 +58,31 @@ See https://github.com/golangci/golangci-lint/releases for available versions."
     echo "${version}"
 }
 
+# add_cobra_cli_autocompletion Adds shell auto-completion for Cobra CLI.
+# Supported shells: bash, zsh, fish
+add_cobra_cli_autocompletion() {
+    command_name="cobra-cli"
+    echo "Enabling shell auto-completion for $command_name..."
+    tmp_file=$(mktemp)
+
+    # Helper function to handle common logic
+    handle_shell() {
+        shell_name=$1
+        if [ -f "$HOME/.${shell_name}rc" ] || type "$shell_name" >/dev/null 2>&1; then
+            echo "Setting up auto-completion for $shell_name..."
+            cobra-cli completion "$shell_name" >"$tmp_file"
+            enable_autocompletion "$tmp_file" "$command_name"
+        fi
+    }
+
+    for shell_name in zsh bash fish; do
+        handle_shell "$shell_name"
+    done
+
+    # Clean up
+    rm "$tmp_file" >/dev/null
+}
+
 # ***********************
 # ** Utility functions **
 # ***********************
@@ -65,33 +90,40 @@ See https://github.com/golangci/golangci-lint/releases for available versions."
 _UTIL_SCRIPT="/usr/local/bin/archlinux_util.sh"
 if [ ! -x "$_UTIL_SCRIPT" ]; then
     (
-        echo ":: Downloading utility script..."
-        _UTIL_SCRIPT_SHA256="$_UTIL_SCRIPT.sha256"
-        _UTIL_SCRIPT_SIG="$_UTIL_SCRIPT.sha256.asc"
-        curl -sSL -o "$_UTIL_SCRIPT" "https://raw.githubusercontent.com/bartventer/arch-devcontainer-features/main/scripts/archlinux_util.sh"
+        _TMP_DIR=$(mktemp --directory --suffix=arch-devcontainer)
+        echo ":: Downloading release tar..."
         _TAG_NAME=$(curl --silent "https://api.github.com/repos/bartventer/arch-devcontainer-features/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         _BASE_URL="https://github.com/bartventer/arch-devcontainer-features/releases/download/$_TAG_NAME"
-        curl -sSL -o "$_UTIL_SCRIPT_SHA256" "$_BASE_URL/archlinux_util.sh.sha256"
-        curl -sSL -o "$_UTIL_SCRIPT_SIG" "$_BASE_URL/archlinux_util.sh.sha256.asc"
-        unset _TAG_NAME _BASE_URL
+        curl -sSL -o "$_TMP_DIR/release.tar.gz" "$_BASE_URL/arch-devcontainer-features-$_TAG_NAME.tar.gz"
+        curl -sSL -o "$_TMP_DIR/checksums.txt" "$_BASE_URL/checksums.txt"
+        curl -sSL -o "$_TMP_DIR/checksums.txt.asc" "$_BASE_URL/checksums.txt.asc"
         echo "OK"
 
-        # Import GPG key
         echo ":: Importing GPG key..."
         _REPO_GPG_KEY=E0AB6303ACAA7621EABF6D42E3730B880D82141A
         gpg --keyserver keyserver.ubuntu.com --recv-keys "$_REPO_GPG_KEY"
-        unset _REPO_GPG_KEY
         echo "OK"
 
-        # Verify SHA256 and signature
-        echo "::Verifying SHA256 and signature..."
-        cd "$(dirname "$_UTIL_SCRIPT")"
-        gpg --verify "$_UTIL_SCRIPT_SIG" "$_UTIL_SCRIPT_SHA256"
-        sha256sum -c "$_UTIL_SCRIPT_SHA256"
-        chmod +x "$_UTIL_SCRIPT"
-        rm -f "$_UTIL_SCRIPT_SHA256" "$_UTIL_SCRIPT_SIG"
-        unset _UTIL_SCRIPT_SHA256 _UTIL_SCRIPT_SIG
+        echo ":: Verifying checksums signature..."
+        cd "$_TMP_DIR"
+        gpg --verify checksums.txt.asc checksums.txt
         echo "OK"
+
+        echo ":: Verifying checksums..."
+        sha256sum -c checksums.txt
+        echo "OK"
+
+        echo ":: Extracting tar..."
+        tar xzf release.tar.gz
+        echo "OK"
+
+        echo ":: Moving scripts..."
+        mv ./scripts/archlinux_util.sh "$_UTIL_SCRIPT"
+        chmod +x "$_UTIL_SCRIPT"
+        echo "OK"
+
+        # Clean up
+        rm -rf "$_TMP_DIR"
     )
 fi
 
@@ -153,5 +185,9 @@ fi
 
 echo_msg "Installing Go tools..."
 echo "${GO_TOOLS}" | xargs -n 1 go install
+
+if [ "$(command -v cobra-cli)" ]; then
+    add_cobra_cli_autocompletion
+fi
 
 echo "Done. Successfully installed Go and Go tools."
