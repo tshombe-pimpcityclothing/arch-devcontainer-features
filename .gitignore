@@ -1,3 +1,4 @@
 # Local development
 __test.sh
 scripts/review.sh
+dist
