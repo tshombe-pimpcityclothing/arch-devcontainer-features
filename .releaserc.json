@@ -22,7 +22,7 @@
             {
                 "assets": [
                     {
-                        "path": "dist/arch-devcontainer-features.tar.gz",
+                        "path": "dist/arch-devcontainer-features.*.tar.gz",
                         "label": "Arch Linux Devcontainer Features for v${nextRelease.version} (tar.gz)"
                     },
                     {
