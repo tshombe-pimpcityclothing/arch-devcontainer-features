@@ -38,7 +38,8 @@ if [ ! -x "$_UTIL_SCRIPT" ]; then
         echo ":: Downloading release tar..."
         _TAG_NAME=$(curl --silent "https://api.github.com/repos/bartventer/arch-devcontainer-features/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         _BASE_URL="https://github.com/bartventer/arch-devcontainer-features/releases/download/$_TAG_NAME"
-        curl -sSL -o "$_TMP_DIR/release.tar.gz" "$_BASE_URL/arch-devcontainer-features-$_TAG_NAME.tar.gz"
+        _TARFILE="arch-devcontainer-features-$_TAG_NAME.tar.gz"
+        curl -sSL -o "$_TMP_DIR/${_TARFILE}" "$_BASE_URL/$_TARFILE"
         curl -sSL -o "$_TMP_DIR/checksums.txt" "$_BASE_URL/checksums.txt"
         curl -sSL -o "$_TMP_DIR/checksums.txt.asc" "$_BASE_URL/checksums.txt.asc"
         echo "OK"
@@ -58,7 +59,7 @@ if [ ! -x "$_UTIL_SCRIPT" ]; then
         echo "OK"
 
         echo ":: Extracting tar..."
-        tar xzf release.tar.gz
+        tar xzf "$_TMP_DIR/$_TARFILE" -C "$_TMP_DIR"
         echo "OK"
 
         echo ":: Moving scripts..."
