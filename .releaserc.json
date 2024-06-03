@@ -23,12 +23,11 @@
                 "assets": [
                     {
                         "path": "dist/arch-devcontainer-features.tar.gz",
-                        "label": "Assets for v${nextRelease.version}",
-                        "name": "arch-devcontainer-features-v${nextRelease.version}.tar.gz"
+                        "label": "Arch Linux Devcontainer Features for v${nextRelease.version} (tar.gz)"
                     },
                     {
                         "path": "dist/checksums.txt",
-                        "label": "Checksums for v${nextRelease.version}"
+                        "label": "Checksums for v${nextRelease.version} (plaintext)"
                     },
                     {
                         "path": "dist/checksums.txt.asc",
