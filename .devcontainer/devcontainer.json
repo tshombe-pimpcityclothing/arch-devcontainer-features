@@ -1,31 +1,4 @@
 {
     "name": "Devcontainer-Features",
-    "image": "archlinux:latest",
-    "customizations": {
-        "vscode": {
-            "settings": {
-                "json.schemas": [
-                    {
-                        "fileMatch": [
-                            "*/devcontainer-feature.json"
-                        ],
-                        "url": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainerFeature.schema.json"
-                    }
-                ]
-            },
-            "extensions": [
-                "github.vscode-github-actions"
-            ]
-        }
-    },
-    "features": {
-        "ghcr.io/bartventer/arch-devcontainer-features/common-utils:latest": {
-            "configureZshAsDefaultShell": true,
-            "installOhMyZshConfig": false,
-            "additionalPackages": "nodejs npm yarn git jq make"
-        },
-        "ghcr.io/bartventer/arch-devcontainer-features/docker-in-docker:latest": {}
-    },
-    "postCreateCommand": "yarn global add @devcontainers/cli semver",
-    "remoteUser": "vscode"
+    "image": "ghcr.io/bartventer/arch-devcontainer-features/devcontainer:latest"
 }
