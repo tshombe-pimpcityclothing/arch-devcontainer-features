@@ -176,7 +176,7 @@ GO_TOOLS="\
 
 # Add Air to the list of Go tools
 if [ "$INSTALL_AIR" = "true" ]; then
-    GO_TOOLS="${GO_TOOLS} github.com/cosmtrek/air@latest"
+    GO_TOOLS="${GO_TOOLS} github.com/air-verse/air@latest"
 fi
 
 # Add Cobra CLI to the list of Go tools
