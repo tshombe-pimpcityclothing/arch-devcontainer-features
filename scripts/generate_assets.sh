@@ -42,13 +42,13 @@ done
 [[ -z "${_VERSION:-}" ]] && echo "Error: --version flag is required" && exit 1
 [[ "${_VERSION}" != v* ]] && _VERSION="v${_VERSION}"
 
-echo "
+cat <<EOT
 ℹ️ Generating release assets:
     - Repository: $_REPOSITORY_NAME
     - Version: $_VERSION
     - Dist directory: $_DIST_DIR
     - Root directory: $_ROOT
-"
+EOT
 
 # Create the dist directory if it doesn't exist
 mkdir -p "$_DIST_DIR"
@@ -70,14 +70,12 @@ echo
 echo "ℹ️ Generated the following assets:"
 ls -l "$_DIST_DIR"
 echo
-
 echo "✔️ OK. All assets generated."
 
-# Prompt whether to upload the assets (if not running in CI)
-# This will replace the existing assets if they already exist
 [[ "${CI:-}" == "true" ]] && exit 0
-echo "🚨 Do you want to upload the assets to the release ($_VERSION)? (y/N)"
-read -r response
+echo
+echo -n "🚨 Do you want to upload the assets to the release ($_VERSION) (this will replace the existing assets if they already exist)? (y/N)"
+read -re response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     echo "🚀 Uploading assets to the release ($_VERSION)"
     for file in "$_DIST_DIR"/*; do
@@ -85,4 +83,14 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     done
 else
     echo "🚫 Skipped uploading assets to the release ($_VERSION)"
+fi
+
+echo
+echo -n "🚨 Do you want to remove the $_DIST_DIR? (Y/n)"
+read -re response
+if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
+    echo "🚫 Skipped removing the $_DIST_DIR"
+else
+    echo "🗑️ Removing the $_DIST_DIR"
+    rm -rf "$_DIST_DIR"
 fi

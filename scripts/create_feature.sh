@@ -51,24 +51,24 @@ _DEFAULT_TESTDIR="$_REPO_ROOT/test"
 
 # Ask for the source directory
 print_color "$_YELLOW" "Enter the path to the source directory where the new feature will be created (default: $_DEFAULT_SRCDIR):"
-read -r -e -i "$_DEFAULT_SRCDIR" _SRCDIR
+read -re -i "$_DEFAULT_SRCDIR" _SRCDIR
 
 # Ask for the test directory
 print_color "$_YELLOW" "Enter the path to the test directory where the new feature tests will be created (default: $_DEFAULT_TESTDIR):"
-read -r -e -i "$_DEFAULT_TESTDIR" _TESTDIR
+read -re -i "$_DEFAULT_TESTDIR" _TESTDIR
 
 # Ask for the feature ID
 print_color "$_YELLOW" "Enter the unique ID of the new feature:"
-read -r _FEAT_ID
+read -re _FEAT_ID
 
 # Ask for the feature name
 _FEAT_NAME=$(echo "$_FEAT_ID" | tr '-' ' ')
 print_color "$_YELLOW" "Enter the name of the new feature (default: $_FEAT_NAME):"
-read -r -e -i "$_FEAT_NAME" _FEAT_NAME
+read -re -i "$_FEAT_NAME" _FEAT_NAME
 
 # Ask for the feature description
 print_color "$_YELLOW" "Enter the description of the new feature:"
-read -r _FEAT_DESC
+read -re _FEAT_DESC
 
 # Define an associative array for the default options snippets
 declare -A _DEFAULT_OPTS_SNIPPETS
@@ -88,7 +88,7 @@ _DEFAULT_OPTS_SNIPPETS=(
 _DEFAULT_OPTS="${!_DEFAULT_OPTS_SNIPPETS[*]}"
 print_color "$_YELLOW" "Enter the list of default options snippets to include (comma-separated, defaults to '$_DEFAULT_OPTS'):"
 print_color "$_YELLOW" "Available options: $_DEFAULT_OPTS"
-read -r -e -i "$_DEFAULT_OPTS" _DEFAULT_OPTS
+read -re -i "$_DEFAULT_OPTS" _DEFAULT_OPTS
 
 # Convert comma-separated string to array
 IFS=',' read -r -a _DEFAULT_OPTS_ARR <<<"$_DEFAULT_OPTS"
@@ -102,7 +102,7 @@ done
 # Ask for the keywords
 _KEYWORDS="arch linux,$_FEAT_ID"
 print_color "$_YELLOW" "Enter the list of keywords (comma-separated, defaults to '$_KEYWORDS'):"
-read -r -e -i "$_KEYWORDS" _KEYWORDS
+read -re -i "$_KEYWORDS" _KEYWORDS
 
 # Convert comma-separated string to array
 IFS=',' read -r -a _KEYWORDS_ARR <<<"$_KEYWORDS"
@@ -213,15 +213,16 @@ for file in "$_TMP_FEAT_DIR"/* "$_TMP_FEAT_TEST_DIR"/*; do
 done
 
 # Ask for confirmation before moving the files to the final location
-print_color "$_YELLOW" "Do you want to move the files to the final location? (y/n)"
-read -r _CONFIRM
-if [[ $_CONFIRM == "y" || $_CONFIRM == "Y" ]]; then
+print_color "$_YELLOW" "Do you want to move the files to the final location? (Y/n)"
+read -re response
+if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
     mv "$_TMP_FEAT_DIR" "$_SRCDIR/"
     print_color "$_GREEN" "Files moved to $_SRCDIR/$_FEAT_ID"
     mv "$_TMP_FEAT_TEST_DIR" "$_TESTDIR/"
     print_color "$_GREEN" "Test files moved to $_TESTDIR/$_FEAT_ID"
-    print_color "$_GREEN" "Done."
     rm -rf "$_TEMP_DIR"
 else
     print_color "$_RED" "Aborted. The files remain in $_TEMP_DIR"
 fi
+
+print_color "$_GREEN" "Done."
