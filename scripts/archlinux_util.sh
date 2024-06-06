@@ -147,19 +147,19 @@ _refresh_and_sort_mirrors() {
 
     # Install reflector if it's not installed
     if ! command -v reflector >/dev/null 2>&1; then
-        pacman -Sy --noconfirm reflector
+        pacman -Sy --noconfirm --disable-download-timeout reflector
     fi
 
     # Install rsync if it's not installed
     if ! command -v rsync >/dev/null 2>&1; then
-        pacman -Sy --noconfirm rsync
+        pacman -Sy --noconfirm --disable-download-timeout rsync
     fi
 
     # Use reflector to sort the mirrors by speed and update the mirrorlist file
     reflector --verbose --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
     # Refresh the package lists
-    pacman -Sy
+    pacman -Sy --disable-download-timeout
     echo_ok "Package lists refreshed and mirrors sorted by speed."
     _set_and_persist "_ARCH_MIRRORLIST_UPDATED" "true"
 }
@@ -180,7 +180,8 @@ _init_pacman_keyring() {
 
         # Upgrade system
         echo_msg "Upgrading system..."
-        pacman -Sy --needed --noconfirm archlinux-keyring && pacman -Su --noconfirm
+        pacman -Sy --needed --noconfirm --disable-download-timeout archlinux-keyring &&
+            pacman -Su --noconfirm --disable-download-timeout
         echo_ok "System upgraded."
     fi
 }
@@ -196,7 +197,7 @@ check_and_install_packages() {
 
     echo_msg "Installing and updating packages ($*)..."
     if ! pacman -Syu --needed --noconfirm --disable-download-timeout "$@"; then
-        echo "Failed to install or update packages. If you're getting an error about a missing secret key, you might need to manually import the key. Refer to the Arch Linux wiki for more information: https://wiki.archlinux.org/title/Pacman/Package_signing#Adding_unofficial_keys"
+        echo "Failed to install or update packages."
         exit 1
     fi
 
