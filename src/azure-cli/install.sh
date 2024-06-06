@@ -50,7 +50,7 @@ if [ ! -x "$_UTIL_SCRIPT" ]; then
         echo "OK"
 
         echo ":: Importing GPG key..."
-        _REPO_GPG_KEY=E0AB6303ACAA7621EABF6D42E3730B880D82141A
+        _REPO_GPG_KEY=A080EEF8607B049ED39BE8F6077F8B92C2B891F9
         gpg --keyserver keyserver.ubuntu.com --recv-keys "$_REPO_GPG_KEY"
         echo "OK"
 
