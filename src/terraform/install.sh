@@ -262,10 +262,6 @@ get_previous_version() {
     prev_version=${!variable_name}
 
     output=$(curl -s "$repo_url")
-
-    # install jq
-    check_and_install_packages jq
-
     message=$(echo "$output" | jq -r '.message')
 
     if [[ $message == "API rate limit exceeded"* ]]; then
@@ -341,7 +337,7 @@ ensure_cosign() {
 }
 
 # Dependencies
-check_and_install_packages curl ca-certificates gnupg coreutils dnsutils git terraform unzip
+check_and_install_packages curl ca-certificates gnupg jq coreutils dnsutils git terraform unzip
 
 if [ "${ENABLE_SHELL_COMPLETION}" = "true" ]; then
     echo "Enabling shell auto-completion for Terraform..."

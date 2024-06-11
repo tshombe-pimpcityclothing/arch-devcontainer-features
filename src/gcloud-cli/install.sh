@@ -140,6 +140,7 @@ check_root
 # Run checks
 check_system
 check_pacman
+check_and_install_packages jq
 
 install_gcp_cli
 
