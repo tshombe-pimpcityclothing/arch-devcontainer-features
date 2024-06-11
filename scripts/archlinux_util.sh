@@ -40,7 +40,7 @@ _set_and_persist() {
     var_name=$1
     var_value=$2
     if [ ! "$(command -v jq)" ]; then
-        pacman -Sy --noconfirm jq
+        pacman -Sy --noconfirm --disable-download-timeout jq
     fi
     # Persist the variable to the state file
     if [ -f "$_ARCH_STATE_FILE" ]; then
@@ -57,7 +57,7 @@ _get_value() {
     var_name=$1
     if [ -f "$_ARCH_STATE_FILE" ]; then
         if [ ! "$(command -v jq)" ]; then
-            pacman -Sy --noconfirm jq
+            pacman -Sy --noconfirm --disable-download-timeout jq
         fi
         value=$(jq -r --arg key "$var_name" '.[$key]' "$_ARCH_STATE_FILE" 2>/dev/null)
         echo "$value"
