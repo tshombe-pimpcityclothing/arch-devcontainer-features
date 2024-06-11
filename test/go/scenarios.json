@@ -1,4 +1,12 @@
 {
+    "go_no_golangci_lint": {
+        "image": "archlinux:latest",
+        "features": {
+            "go": {
+                "golangciLintVersion": "none"
+            }
+        }
+    },
     "install_air": {
         "image": "archlinux:latest",
         "features": {
