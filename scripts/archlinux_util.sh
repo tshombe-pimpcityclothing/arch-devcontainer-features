@@ -35,39 +35,6 @@ set -e
 
 _ARCH_STATE_FILE="/tmp/archlinux_util_state.json"
 
-# _set_and_persist Sets a variable in the script's environment and persists it to the state file.
-_set_and_persist() {
-    var_name=$1
-    var_value=$2
-    if [ ! "$(command -v jq)" ]; then
-        pacman -Sy --noconfirm --disable-download-timeout jq
-    fi
-    # Persist the variable to the state file
-    if [ -f "$_ARCH_STATE_FILE" ]; then
-        jq --arg key "$var_name" --arg value "$var_value" '. + {($key): $value}' "$_ARCH_STATE_FILE" \
-            >"tmp.$$.json" &&
-            mv "tmp.$$.json" "$_ARCH_STATE_FILE"
-    else
-        echo "{ \"$var_name\": \"$var_value\" }" | jq '.' >"$_ARCH_STATE_FILE"
-    fi
-}
-
-# _get_value Gets a value from the state file.
-_get_value() {
-    var_name=$1
-    if [ -f "$_ARCH_STATE_FILE" ]; then
-        if [ ! "$(command -v jq)" ]; then
-            pacman -Sy --noconfirm --disable-download-timeout jq
-        fi
-        value=$(jq -r --arg key "$var_name" '.[$key]' "$_ARCH_STATE_FILE" 2>/dev/null)
-        echo "$value"
-    else
-        # create the state file if it doesn't exist
-        touch "$_ARCH_STATE_FILE"
-        echo ""
-    fi
-}
-
 # Echo message
 _CYAN='\033[1;36m'
 _BLUE='\033[1;34m'
@@ -124,25 +91,19 @@ check_pacman() {
 # This function is idempotent
 # Usage: _adjust_dir_permissions
 _adjust_dir_permissions() {
-    if [ "$(_get_value _ARCH_DIR_PERMS_CHECKED)" != "true" ]; then
-        echo_msg "Adjusting directory permissions..."
-        if [ "$(stat -c %a /srv/ftp)" != "555" ]; then
-            chmod 555 /srv/ftp
-        fi
-        if [ "$(stat -c %a /usr/share/polkit-1/rules.d/)" != "755" ]; then
-            chmod 755 /usr/share/polkit-1/rules.d/
-        fi
-        _set_and_persist "_ARCH_DIR_PERMS_CHECKED" "true"
-        echo_ok "Directory permissions adjusted."
+    echo_msg "Adjusting directory permissions..."
+    if [ "$(stat -c %a /srv/ftp)" != "555" ]; then
+        chmod 555 /srv/ftp
     fi
+    if [ "$(stat -c %a /usr/share/polkit-1/rules.d/)" != "755" ]; then
+        chmod 755 /usr/share/polkit-1/rules.d/
+    fi
+    echo_ok "Directory permissions adjusted."
 }
 
 # _refresh_and_sort_mirrors Refreshes the package lists and sorts the mirrors by speed.
 # Usage: _refresh_and_sort_mirrors
 _refresh_and_sort_mirrors() {
-    if [ "$(_get_value _ARCH_MIRRORLIST_UPDATED)" = "true" ]; then
-        return
-    fi
     echo_msg "Refreshing package lists and sorting mirrors by speed..."
 
     # Install reflector if it's not installed
@@ -161,29 +122,25 @@ _refresh_and_sort_mirrors() {
     # Refresh the package lists
     pacman -Sy --disable-download-timeout
     echo_ok "Package lists refreshed and mirrors sorted by speed."
-    _set_and_persist "_ARCH_MIRRORLIST_UPDATED" "true"
 }
 
 # _init_pacman_keyring Initializes the pacman keyring and upgrades the system.
 # This function is idempotent
 # Usage: _init_pacman_keyring
 _init_pacman_keyring() {
-    if [ "$(_get_value _ARCH_KEYRING_CHECKED)" != "true" ]; then
-        echo_msg "Initializing pacman keyring..."
-        if pacman-key --init && pacman-key --populate archlinux; then
-            echo_ok "Pacman keyring initialized."
-            _set_and_persist "_ARCH_KEYRING_CHECKED" "true"
-        else
-            echo_msg "ERROR. Pacman keyring initialization failed."
-            exit 1
-        fi
-
-        # Upgrade system
-        echo_msg "Upgrading system..."
-        pacman -Sy --needed --noconfirm --disable-download-timeout archlinux-keyring &&
-            pacman -Su --noconfirm --disable-download-timeout
-        echo_ok "System upgraded."
+    echo_msg "Initializing pacman keyring..."
+    if pacman-key --init && pacman-key --populate archlinux; then
+        echo_ok "Pacman keyring initialized."
+    else
+        echo_msg "ERROR. Pacman keyring initialization failed."
+        exit 1
     fi
+
+    # Upgrade system
+    echo_msg "Upgrading system..."
+    pacman -Sy --needed --noconfirm --disable-download-timeout archlinux-keyring &&
+        pacman -Su --noconfirm --disable-download-timeout
+    echo_ok "System upgraded."
 }
 
 # check_and_install_packages Installs or updates packages using pacman.
