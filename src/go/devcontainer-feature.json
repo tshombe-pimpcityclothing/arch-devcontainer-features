@@ -12,7 +12,8 @@
             "description": "Version of golangci-lint to install (https://github.com/golangci/golangci-lint/releases).",
             "proposals": [
                 "latest",
-                "v1.58.1"
+                "v1.58.1",
+                "none"
             ]
         },
         "installGoReleaser": {

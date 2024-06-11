@@ -162,7 +162,6 @@ check_and_install_packages $PACKAGES
 
 GO_TOOLS="\
     golang.org/x/tools/gopls@latest \
-    github.com/golangci/golangci-lint/cmd/golangci-lint@$(revise_golangci_version "$GOLANGCI_LINT_VERSION") \
     honnef.co/go/tools/cmd/staticcheck@latest \
     github.com/mgechev/revive@latest \
     github.com/incu6us/goimports-reviser/v2@latest \
@@ -173,6 +172,11 @@ GO_TOOLS="\
     golang.org/x/lint/golint@latest \
     github.com/haya14busa/goplay/cmd/goplay@latest \
     github.com/766b/go-outliner@latest"
+
+# Add GolangCI-Lint to the list of Go tools
+if [ "$GOLANGCI_LINT_VERSION" != "none" ]; then
+    GO_TOOLS="${GO_TOOLS} github.com/golangci/golangci-lint/cmd/golangci-lint@$(revise_golangci_version "$GOLANGCI_LINT_VERSION")"
+fi
 
 # Add Air to the list of Go tools
 if [ "$INSTALL_AIR" = "true" ]; then
