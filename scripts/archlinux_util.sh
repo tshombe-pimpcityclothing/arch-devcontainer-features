@@ -33,8 +33,6 @@
 # Exit on error
 set -e
 
-_ARCH_STATE_FILE="/tmp/archlinux_util_state.json"
-
 # Echo message
 _CYAN='\033[1;36m'
 _BLUE='\033[1;34m'
@@ -101,29 +99,6 @@ _adjust_dir_permissions() {
     echo_ok "Directory permissions adjusted."
 }
 
-# _refresh_and_sort_mirrors Refreshes the package lists and sorts the mirrors by speed.
-# Usage: _refresh_and_sort_mirrors
-_refresh_and_sort_mirrors() {
-    echo_msg "Refreshing package lists and sorting mirrors by speed..."
-
-    # Install reflector if it's not installed
-    if ! command -v reflector >/dev/null 2>&1; then
-        pacman -Sy --noconfirm --disable-download-timeout reflector
-    fi
-
-    # Install rsync if it's not installed
-    if ! command -v rsync >/dev/null 2>&1; then
-        pacman -Sy --noconfirm --disable-download-timeout rsync
-    fi
-
-    # Use reflector to sort the mirrors by speed and update the mirrorlist file
-    reflector --verbose --latest 5 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-
-    # Refresh the package lists
-    pacman -Sy --disable-download-timeout
-    echo_ok "Package lists refreshed and mirrors sorted by speed."
-}
-
 # _init_pacman_keyring Initializes the pacman keyring and upgrades the system.
 # This function is idempotent
 # Usage: _init_pacman_keyring
@@ -149,7 +124,6 @@ _init_pacman_keyring() {
 check_and_install_packages() {
 
     _adjust_dir_permissions
-    _refresh_and_sort_mirrors
     _init_pacman_keyring
 
     echo_msg "Installing and updating packages ($*)..."
