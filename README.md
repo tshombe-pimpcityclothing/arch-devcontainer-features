@@ -29,14 +29,21 @@ This repository contains a _collection_ of features curated by [@bartventer](htt
 
 | Feature                                                            | Description                                                                                             |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| [azure-cli](src/azure-cli/README.md)                               | Installs the Azure CLI along with needed dependencies.                                                  |
 | [aws-cli](src/aws-cli/README.md)                                   | Installs the AWS CLI along with needed dependencies.                                                    |
+| [azure-cli](src/azure-cli/README.md)                               | Installs the Azure CLI along with needed dependencies.                                                  |
 | [common-utils](src/common-utils/README.md)                         | Installs a set of common command line utilities, Oh My Zsh!, and sets up a non-root user on Arch Linux. |
 | [docker-in-docker](src/docker-in-docker/README.md)                 | Installs Docker and Docker Compose in a Docker container.                                               |
 | [docker-outside-of-docker](src/docker-outside-of-docker/README.md) | Re-uses the host docker socket, adding the Docker CLI to a container.                                   |
 | [gcloud-cli](src/gcloud-cli/README.md)                             | Installs the Google Cloud CLI along with needed dependencies.                                           |
 | [go](src/go/README.md)                                             | Installs the Go programming language and common Go utilities.                                           |
 | [terraform](src/terraform/README.md)                               | Installs the Terraform CLI and optionally Terragrunt and TFLint.                                        |
+
+<!-- > [!NOTE]
+> A  -->
+<!-- > ℹ️ **Note:** For a compatible base image, refer to the [bartventer/devcontainer-images](https://github.com/bartventer/devcontainer-images) repository. The `base-archlinux` image is fully compatible with all the features in this repository. -->
+
+> [!NOTE]
+> A base image is not provided in this repository, but [bartventer/devcontainer-images](https://github.com/bartventer/devcontainer-images) provides a [base-archlinux](https://github.com/bartventer/devcontainer-images/blob/master/src/base-archlinux/README.md) image which has been configured according to the [these](https://gitlab.archlinux.org/archlinux/archlinux-docker/blob/master/README.md) guidelines.
 
 ## Contributing
 
