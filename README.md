@@ -38,10 +38,6 @@ This repository contains a _collection_ of features curated by [@bartventer](htt
 | [go](src/go/README.md)                                             | Installs the Go programming language and common Go utilities.                                           |
 | [terraform](src/terraform/README.md)                               | Installs the Terraform CLI and optionally Terragrunt and TFLint.                                        |
 
-<!-- > [!NOTE]
-> A  -->
-<!-- > ℹ️ **Note:** For a compatible base image, refer to the [bartventer/devcontainer-images](https://github.com/bartventer/devcontainer-images) repository. The `base-archlinux` image is fully compatible with all the features in this repository. -->
-
 > [!NOTE]
 > A base image is not provided in this repository, but [bartventer/devcontainer-images](https://github.com/bartventer/devcontainer-images) provides a [base-archlinux](https://github.com/bartventer/devcontainer-images/blob/master/src/base-archlinux/README.md) image which has been configured according to the [these](https://gitlab.archlinux.org/archlinux/archlinux-docker/blob/master/README.md) guidelines.
 
